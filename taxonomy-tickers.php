@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html data-wf-page="5acbb34e9ed369cd3a1146da" data-wf-site="5a7fa1f338edac00018725fb">
 <?php get_header(); ?>
-<?php if(is_user_logged_in() && get_user_meta(get_current_user_id(), 'subscription_type', true) === 'classic'): ?>
+<?php if(is_user_logged_in() && get_user_meta(get_current_user_id(), 'subscription_type', true) === 'classic' || current_user_can('administrator')): ?>
 
 <div class="_3_container w-container">
 	<h1 class="heading"><?php echo get_queried_object()->name . ' Archive';?></h1>
