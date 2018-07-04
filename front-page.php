@@ -9,14 +9,14 @@
   <div data-w-id="ad5bf1b0-05dd-7d5f-c4ea-c2e73af836cb" style="opacity:1" class="_1_wrapper">
     <div data-w-id="fbd8402c-9979-f7f3-54cf-f12f9375d5d8" style="-webkit-transform:translateX(0) translateY(0) translateZ(0) scaleX(1) scaleY(1) scaleZ(1) rotateX(0) rotateY(0) rotateZ(0) skewX(0) skewY(0);-moz-transform:translateX(0) translateY(0) translateZ(0) scaleX(1) scaleY(1) scaleZ(1) rotateX(0) rotateY(0) rotateZ(0) skewX(0) skewY(0);-ms-transform:translateX(0) translateY(0) translateZ(0) scaleX(1) scaleY(1) scaleZ(1) rotateX(0) rotateY(0) rotateZ(0) skewX(0) skewY(0);transform:translateX(0) translateY(0) translateZ(0) scaleX(1) scaleY(1) scaleZ(1) rotateX(0) rotateY(0) rotateZ(0) skewX(0) skewY(0)" class="_1_login-wrapper"><img src="<?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO.png" srcset="<?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO-p-500.png 500w, <?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO-p-800.png 800w, <?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO-p-1080.png 1080w, <?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO.png 1193w" sizes="100vw" data-w-id="1b765782-d06a-2516-6677-4c27a4ed8756" class="_1_logo-rotate-log-in-2">
       <h1 class="_1_login-wrapper-heading">Log In</h1>
-        <?php get_template_part('login-form'); ?>
+        <?php get_template_part('parts/login/login-form'); ?>
         <div data-w-id="3004f7f0-0f2d-e4e0-0ddb-84ca3c0394aa" class="_1_login-text-close"><a href="#" class="o-login-form-link">Close</a></div>
     </div>
   </div>
   <div data-w-id="5b0fafd8-0e5a-c647-b1cd-319a5d4edf60" style="opacity:1" class="_2_wrapper">
     <div data-w-id="5b0fafd8-0e5a-c647-b1cd-319a5d4edf61" class="_2_sign-up-wrapper"><img src="<?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO.png" srcset="<?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO-p-500.png 500w, <?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO-p-800.png 800w, <?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO-p-1080.png 1080w, <?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO.png 1193w" sizes="100vw" data-w-id="5b0fafd8-0e5a-c647-b1cd-319a5d4edf62" class="_1_logo-rotate-log-in">
       <h1 class="_1_login-wrapper-heading">Sign Up</h1>
-        <?php get_template_part('register-form'); ?>
+        <?php get_template_part('parts/login/register-form'); ?>
       <div data-w-id="5b0fafd8-0e5a-c647-b1cd-319a5d4edf78" style="-webkit-transform:translateX(0) translateY(0) translateZ(0) scaleX(1) scaleY(1) scaleZ(1) rotateX(0) rotateY(0) rotateZ(0) skewX(0) skewY(0);-moz-transform:translateX(0) translateY(0) translateZ(0) scaleX(1) scaleY(1) scaleZ(1) rotateX(0) rotateY(0) rotateZ(0) skewX(0) skewY(0);-ms-transform:translateX(0) translateY(0) translateZ(0) scaleX(1) scaleY(1) scaleZ(1) rotateX(0) rotateY(0) rotateZ(0) skewX(0) skewY(0);transform:translateX(0) translateY(0) translateZ(0) scaleX(1) scaleY(1) scaleZ(1) rotateX(0) rotateY(0) rotateZ(0) skewX(0) skewY(0)" class="_1_login-text-close"><a href="#" class="o-login-form-link">Close</a></div>
     </div>
   </div>

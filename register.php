@@ -42,7 +42,7 @@
 			?>
       		</p>
       		<?php 
-      			get_template_part('register-form'); 
+      			get_template_part('parts/login/register-form'); 
       		?>
   		</div>
 	</div>

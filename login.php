@@ -37,7 +37,7 @@ if(!is_user_logged_in()): ?>
 
 
 			?>
-	        <?php get_template_part('login-form'); ?>
+	        <?php get_template_part('parts/login/login-form'); ?>
 	    </div>
 	</div>
 </div>

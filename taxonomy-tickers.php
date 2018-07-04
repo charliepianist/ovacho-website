@@ -23,7 +23,7 @@
 </span></p></div>';
     ?>
     </div>
-    <?php get_template_part('tickers-archive'); ?>
+    <?php get_template_part('parts/tickers-archive'); ?>
   </div>
 
 <?php else: ?>
