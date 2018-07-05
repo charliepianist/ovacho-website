@@ -16,7 +16,7 @@
           <?php if(firstWeek()): ?><br><span class="limited-time text-span-17">LIMITED TIME Promotion <br></span><span class="pricing-date text-span-18">(06/27 - 07/04)</span><span class="limited-time text-span-17"><br></span><span class="text-span-3">$15/month for first 2 months<br></span>
           <?php endif; ?>
         </p><a href="#" data-w-id="c5199c12-e32e-d2be-a248-cf82a26d0f7a" class="pricing_button w-button" onclick="classicClick();" id="classic_button"><?php if(firstWeek()): ?><span class="tester text-span-15">
-        $20</span> $15/month for 2 months <?php else: ?> $15/month<?php endif; ?></a>
+        $20</span> $15/month for 2 months <?php else: ?> $20/month<?php endif; ?></a>
         <?php 
         if(is_user_logged_in()) {
         	if(get_user_meta(get_current_user_id(), 'subscription_type', true) !== 'classic') {
@@ -27,7 +27,7 @@
       </div>
       <div class="w-col w-col-4">
         <h1 class="_3_chartname">Premium [Coming Soon!]</h1>
-        <p class="pricing_plat"><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br></p><a href="#" data-w-id="e7b1faab-8b5a-267d-3e32-46f78309180a" class="pricing_button w-button">TBD</a></div>
+        <p class="pricing_plat" style="padding-bottom:1.3em;"><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br></p><a href="#" data-w-id="e7b1faab-8b5a-267d-3e32-46f78309180a" class="pricing_button w-button">TBD</a></div>
     </div>
   </div>
 <script src="<?php bloginfo('stylesheet_directory');?>/js/md5.min.js"></script>

@@ -7,6 +7,30 @@ function get_var_dump($var) {
     return ob_get_clean();
 }
 
+function get_discord_user($id) {
+
+    $discord_api_url = 'https://discordapp.com/api/users/' . $id;
+    //Initiate cURL
+    $ch = curl_init($discord_api_url);
+     
+    //We want the result / output returned.
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+     
+    //Http headers
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'User-Agent: OvachoRoleManager (https://www.ovacho.com, 1)',
+        'Authorization: Bot ' . DISCORD_BOT_TOKEN,
+    ));
+     
+    //Execute the request.
+    $response = curl_exec($ch); 
+    $response_obj = json_decode($response);
+
+    return $response_obj;
+
+    curl_close($ch);
+}
+
 function identify_discord() {
     $discord_api_url = 'https://discordapp.com/api/gateway/bot';
     //Initiate cURL
@@ -149,11 +173,11 @@ function remove_discord_user($id) {
 //seconds
 function firstWeek($time = 0) {
     if($time === 0) $time = time();
-    return $time < 1530748800;
+    return $time < 1530763200;
 }
 
 function firstTwoMonths() {
-    return time() < 1535414400;
+    return time() < 1535428800;
 }
 
 function isMobile() {

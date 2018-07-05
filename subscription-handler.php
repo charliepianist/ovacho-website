@@ -20,6 +20,8 @@ if(isset($_POST) && isset($_POST['x_response_code']) && $_POST['x_response_code'
     				update_user_meta($cust_id, 'discord_id', $_POST['x_reference_3']);
     				update_user_meta($cust_id, 'subscription_type', 'classic');
     				update_user_meta($cust_id, 'subscription_end_time', strtotime('+1 month'));
+    				update_user_meta($cust_id, 'subscription_active', 'true');
+    				update_user_meta($cust_id, 'token', $_POST['Card_Number']);
     				add_discord_user($_POST['x_reference_3']);
 				break;
 			}

@@ -1,6 +1,5 @@
 <?php /*Template Name: User Dump **Backend** */ ?>
 <html>
-<?php get_header(); ?>
 <div style="background-color: white; color:black;">
 <br><br><pre>
 <?php
@@ -75,6 +74,25 @@ if(current_user_can('administrator')) {
 			echo 'Total subscribers: ' . $count;
 		break;
 
+		case 'subscriber_info':
+			$users = get_users(array(
+				'orderby' => orderby(),
+			));
+			$count = 0;
+			foreach($users as $user) {
+				if(get_user_meta($user->id, 'subscription_type') != FALSE && get_user_meta($user->id, 'subscription_type') !== 'basic') {
+					$count++;
+					echo 'Username: ' . $user->user_login . '<br>';
+					echo 'Name: ' . get_user_meta($user->id, 'first_name', true) . '<br>';
+					echo 'Discord ID: ' . get_user_meta($user->id, 'discord_id', true) . '<br>';
+					echo 'Discord Username: ' . get_discord_user(get_user_meta($user->id, 'discord_id', true))->username . '<br>';
+					echo 'Subscriber ID: ' . $user->id . '<br>';
+					echo 'Email Address: ' . $user->data->user_email;
+					echo '<br><hr><br><br>';
+				}
+			}
+		break;
+
 		default:
 			switch($_GET['action']) {
 				case 'meta':
@@ -84,6 +102,7 @@ if(current_user_can('administrator')) {
 				case 'revoke':
 				update_user_meta($_GET['user_id'], 'subscription_type', 'basic');
 				remove_discord_user(get_user_meta($_GET['user_id'], 'discord_id', true));
+				echo 'Success';
 				break;
 
 				case 'subscribe':
@@ -120,9 +139,18 @@ if(current_user_can('administrator')) {
 				echo 'Success';
 				break;
 
+				case 'update_token': //set multipay token
+				update_user_meta($_GET['user_id'], 'token', $_GET['value']);
+				echo 'Success';
+				break;
+
 				case 'update_end_time':
 				update_user_meta($_GET['user_id'], 'subscription_end_time', $_GET['time']);
 				echo 'Success';
+				break;
+
+				case 'update_other':
+				update_user_meta($_GET['user_id'], $_GET['key'], $_GET['value']);
 				break;
 
 				default:
@@ -135,4 +163,3 @@ if(current_user_can('administrator')) {
 ?>
 </pre>
 </div>
-<?php get_footer(); ?>

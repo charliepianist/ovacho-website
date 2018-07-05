@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html data-wf-page="5aac99ecaf97838325230d58" data-wf-site="5a7fa1f338edac00018725fb">
 <?php get_header(); 
-
   //identify_discord();
-  send_discord_message_to_user('194984299836080129', 'test');
+  //send_discord_message_to_user('194984299836080129', 'test');
 ?>
   <?php if(!is_user_logged_in()): ?>
   <div data-w-id="ad5bf1b0-05dd-7d5f-c4ea-c2e73af836cb" style="opacity:1" class="_1_wrapper">
