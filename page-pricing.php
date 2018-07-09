@@ -19,7 +19,9 @@
         $20</span> $15/month for 2 months <?php else: ?> $20/month<?php endif; ?></a>
         <?php 
         if(is_user_logged_in()) {
-        	if(get_user_meta(get_current_user_id(), 'subscription_type', true) !== 'classic') {
+          //check if user has no subscriptions
+        	if(get_user_subscription(get_current_user_id()) === 'basic') {
+            //form with needed values
         		get_template_part('parts/payment/classic-form');
         	}else echo '<p class="pricing to_fade_in" style="display:none;">You are already subscribed to our Classic Subscription.</p>';
         }else echo '<p class="pricing to_fade_in" style="display:none;">You must <a style="color: #fff;" href="' . site_url('login/?redirect=') . urlencode(site_url() . $_SERVER['REQUEST_URI']) . '">login</a> to purchase this subscription.</p>';
@@ -32,6 +34,9 @@
   </div>
 <script src="<?php bloginfo('stylesheet_directory');?>/js/md5.min.js"></script>
 <script>
+  function renewSubscriptionButton() {
+    $('#renew_form').submit();
+  }
 	function classicClick() {
 		$('#classic_button').fadeOut(400, function() {
 			$('.to_fade_in').fadeIn(600);
@@ -61,7 +66,7 @@
   function submitClassicForm() {
     var date = new Date();
       var seconds = date.getTime() / 1000 - ((date.getTime() / 1000) % 1);
-      var hash = md5("<?php echo PAYEEZY_LOGIN; ?>^<?php echo FP_SEQUENCE; ?>^" + seconds + "^<?php if(firstWeek() || (get_user_meta(get_current_user_id(), 'discount') === 'true' && firstTwoMonths())) echo '15.00'; else echo '20.00';?>^USD", "g4wh6ZaN8gL18rOdpSJG");
+      var hash = md5("<?php echo PAYEEZY_LOGIN; ?>^<?php echo FP_SEQUENCE; ?>^" + seconds + "^<?php if(firstWeek() || (get_user_meta(get_current_user_id(), 'discount') === 'true' && firstTwoMonths())) echo '15.00'; else echo '20.00';?>^USD", "<?php echo PAYEEZY_TRANSACTION_KEY; ?>");
       $('#x_fp_timestamp').val(seconds);
       $('#x_fp_hash').val(hash);
       $('#submit_form').click();

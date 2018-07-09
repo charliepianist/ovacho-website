@@ -7,15 +7,10 @@ if(is_user_logged_in()):
 
   //check if user has subscription
   $o_user_id = get_current_user_id(); 
-  if(get_user_meta($o_user_id, 'subscription_type', true) === 'classic' || current_user_can('administrator')): 
-
-      //check if subscription still valid
-      if(time() <= get_user_meta($o_user_id, 'subscription_end_time', true) || current_user_can('administrator')): ?>
+  if(get_user_meta($o_user_id, 'subscription_type', true) === 'classic' || current_user_can('administrator')): ?>
         <div class="_3_container w-container">
-          <?php while(have_posts()): the_post(); 
-                  the_content();
-                  endwhile;
-          ?>
+          <h1 class="heading">Watchlists and Recap</h1>
+            <p class="paragraph_privacy1">Our watchlist gives you our daily opinion while our recap covers the day&#x27;s events.<span class="text-span-3"><br></span></p>
           <?php 
           /*$o_date = getdate(strtotime('-1 week'));
           $o_after_array = array(
@@ -82,18 +77,11 @@ if(is_user_logged_in()):
         <?php endif; endfor; ?>
       </div>
 <?php 
-else: //CLASSIC EXPIRED 
-update_user_meta($o_user_id, 'subscription_type', 'basic');
-remove_discord_user(get_user_meta($o_user_id, 'discord_id', true));
-get_template_part('parts/payment/classic-expired');
-endif;
 else: //BASIC SUBSCRIPTION ?>
 
     <div class="_3_container w-container">
-      <?php while(have_posts()): the_post(); 
-              the_content();
-              endwhile;
-      ?>
+      <h1 class="heading">Basic Watchlists</h1>
+        <p class="paragraph_privacy1">Access our full watchlists and our recaps by <a href="<?php echo site_url('pricing');?>" style="color: #fff;">purchasing a subscription</a>! Our watchlist gives you our daily opinion while our recap covers the day&#x27;s events.<span class="text-span-3"><br></span></p>
       <?php 
       /*$o_date = getdate(strtotime('-1 week'));
       $o_after_array = array(

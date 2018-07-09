@@ -1,6 +1,340 @@
 <?php 
 require 'keys.php';
 
+function visible_dump($var) {
+    echo '<br><br><div style="color: black;">';
+    var_dump($var);
+    echo '</div><br>';
+}
+
+function format_ctr($ctr) {
+    return '<div style="background:white;border:1px solid #D1D1D1;border-right:2px solid #D1D1D1;border-bottom:2px solid #D1D1D1;color:black;width:300px;margin-left:auto;margin-right:auto;font:11px monospace;margin-top:20px;margin-bottom:20px;padding:10px;"><pre>' . $ctr . '</pre></div>';
+}
+
+function send_email($address = 'ovachoinvestments@gmail.com', $subject = 'Default Subject', $message = 'Default Message', $from_email = 'automated@ovacho.com', $from_name = 'Ovacho Investments', $add_headers = '') {
+    $headers = array('Content-Type: text/html; charset=UTF-8');
+    $headers[] = 'From: ' . $from_name . ' <' . $from_email . '>';
+    //add any additional headers
+    if($add_headers) {
+        $headers = array_merge($headers, $add_headers);
+    }
+
+    //send the email
+    return wp_mail($address, $subject, $message, $headers);
+}
+
+function three_day_email($id, $time = 0) {
+    if($time === 0) $time = time();
+    return ($time >= get_user_meta($id, 'subscription_end_time', true) - 259200) && get_user_meta($id, 'three_day_email_sent', true) != 'true';
+}
+
+function charge_subscription($id) {
+    $user_meta = get_user_meta($id);
+
+    switch($user_meta['subscription_type']) {
+        case 'classic':
+            $discount_amount = number_format(20.0 - $user_meta['monthly_amount'], 2);
+            $discount_indicator = '0';
+            if($discount_amount !== '0.00') $discount_indicator = '1';
+            //$customer_reference = 'USD';
+            $reference_no = uniqid('', TRUE);
+
+            //JSON data
+            $data = array(
+              'gateway_id' => PAYEEZY_GATEWAY_ID,
+              'password' => PAYEEZY_API_PASSWORD,
+              'transaction_type' => '00', //purchase
+              'transarmor_token' => $user_meta['token'],
+              'cardholder_name' => $user_meta['cardholder_name'],
+              'amount' => $user_meta['monthly_amount'],
+              'credit_card_type' => $user_meta['card_type'],
+              'cc_expiry' => $user_meta['expiry_date'],
+              'reference_no' => $reference_no,
+              'customer_ref' =>  $reference_no, // x_po_num
+              'reference_3' => $user_meta['discord_id'], //discord_id
+              'client_email' => get_user_by('id', $id)->data->user_email,
+              'partial_redemption' => 'false', //no partial redemption
+              'ecommerce_flag' => '2', // MOTO recurring payments
+              'tax1_amount' => '0.00', //for level 2 data
+              'level3' => array( //LEVEL 3 DATA
+                'discount_amount' => $discount_amount,
+                'duty_amount' => '0.00',
+                'freight_amount' => '0.00',
+                'line_items' => array(
+                    array(
+                        'commodity_code' => '91528',
+                        'description' => 'Classic Subscription (1 Month)',
+                        'discount_amount' => $discount_amount,
+                        'discount_indicator' => $discount_indicator,
+                        'gross_net_indicator' => '1', //tax included
+                        'line_item_total' => $user_meta['monthly_amount'],
+                        'product_code' => '099102', //product code
+                        'quantity' => '1',
+                        'unit_cost' => $user_meta['monthly_amount'],
+                        'unit_of_measure' => 'EA',
+                    ),
+                ),
+              ),
+            );
+            $data_string = json_encode($data);
+            //echo $data_string . '<br>';
+
+            $date = date('c');
+            $url = 'https://api.globalgatewaye4.firstdata.com/transaction/v27';
+            $request_url = '/transaction/v27';
+            $key_id = '587044';
+            $key = PAYEEZY_HMAC_KEY;
+            $method = 'POST';
+            $content_digest = sha1($data_string);
+            $content_type = 'application/json';
+
+            /*echo '<br><br><br><div style="color:black;">';
+            echo $data_string;
+            echo '<br>';
+            echo $content_digest;
+            echo '<br>';
+            echo $date;
+            echo '<br>';
+            echo base64_encode(hash_hmac('sha1', $method . "\n" . $content_type . "\n" . $content_digest . "\n" . $date . "\n" . $request_url, $key, TRUE));
+            echo '</div>';*/
+
+            //Initiate cURL
+            $ch = curl_init($url);
+
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");  
+
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Content-Type: ' . $content_type,
+                'Content-Length: ' . strlen($data_string),
+                'x-gge4-content-sha1: ' . $content_digest,
+                'x-gge4-date: ' . $date,
+                'Authorization: ' . 'GGE4_API ' . $key_id . ':' . base64_encode(hash_hmac('sha1', $method . "\n" . $content_type . "\n" . $content_digest . "\n" . $date . "\n" . $request_url, $key, TRUE)),
+            ));
+
+            $response = json_decode(curl_exec($ch));
+            curl_close($ch);
+
+            //add to user meta
+            add_transaction($id, array(
+                'cardholder' => $user_meta['cardholder_name'],
+                'amount' => $user_meta['monthly_amount'],
+                'cust_reference' => $customer_reference,
+                'invoice_num' => $reference_no,
+                'exact_ctr' => $response['ctr'],
+            ));
+
+            $links_html = '<p style="color:#898989; text-align:center;"><a style="color:#898989;" href="' . site_url('privacy-policy') . '">PRIVACY POLICY</a> | <a style="color:#898989;" href="' . site_url('terms') . '">TERMS</a>';
+
+            //transaction successful?
+            if($response['transaction_error'] == 0 && $response['transaction_approved'] == 1) {
+
+                //cancel subscription button
+                $links_html .= ' | <a style="color:#898989;" href="' . site_url('account') . '">UNSUBSCRIBE</a></p>';
+
+                //send email for success
+                send_email($get_user_email($id), 'Thank you! Your subscription was renewed automatically.', '<p style="text-align:center;">Your subscription with us has been automatically renewed. Here is your official receipt:</p>' . 
+                    format_ctr($response['ctr']) . 
+                    $links_html);
+                return strtotime('+1 month');
+            }
+            
+            //error in transaction
+            //send email for error
+            $links_html .= '</p>';
+            send_email($get_user_email($id), 'There was an error renewing your subscription.', '<p style="text-align:center;">There was an error processing the transaction to renew your subscription. Here is your official receipt:</p>' . 
+                format_ctr($response['ctr']) . 
+                '<p style="text-align:center;"><a href="' . site_url('pricing') . '">Renew your subscription?</a></p>' .
+                $links_html);
+        break;
+    }
+    return FALSE;
+}
+
+function test_token($token, $cardholder_name, $expiry, $card_type) {
+    $ref_num = uniqid('', TRUE);
+    $data = array(
+              'gateway_id' => PAYEEZY_GATEWAY_ID,
+              'password' => PAYEEZY_API_PASSWORD,
+              'transaction_type' => '00', //purchase
+              'transarmor_token' => $token,
+              'cardholder_name' => $cardholder_name,
+              'amount' => '0.01',
+              'credit_card_type' => $card_type,
+              'cc_expiry' => $expiry,
+              'reference_no' => $ref_num,
+              'customer_ref' =>  $ref_num, // x_po_num
+              'reference_3' => 0, //discord_id
+              'client_email' => 'ovachoinvestments@gmail.com',
+              'partial_redemption' => 'false', //no partial redemption
+              'ecommerce_flag' => '2', 
+              'tax1_amount' => '0.00', //for level 2 data
+              'level3' => array( //LEVEL 3 DATA
+                'discount_amount' => '0.00',
+                'duty_amount' => '0.00',
+                'freight_amount' => '0.00',
+                'line_items' => array(
+                    array(
+                        'commodity_code' => '91528',
+                        'description' => 'Tokenization Test',
+                        'discount_amount' => '0.00',
+                        'discount_indicator' => '0',
+                        'gross_net_indicator' => '1', //tax included
+                        'line_item_total' => '0.01',
+                        'product_code' => '099999', //product code
+                        'quantity' => '1',
+                        'unit_cost' => '0.01',
+                        'unit_of_measure' => 'EA',
+                    ),
+                ),
+              ),
+            );
+            $data_string = json_encode($data);
+            //echo $data_string . '<br>';
+
+            $date = date('c');
+            $url = 'https://api.globalgatewaye4.firstdata.com/transaction/v27';
+            $request_url = '/transaction/v27';
+            $key_id = '587044';
+            $key = PAYEEZY_HMAC_KEY;
+            $method = 'POST';
+            $content_digest = sha1($data_string);
+            $content_type = 'application/json';
+
+            /*echo '<br><br><br><div style="color:black;">';
+            echo $data_string;
+            echo '<br>';
+            echo $content_digest;
+            echo '<br>';
+            echo $date;
+            echo '<br>';
+            echo base64_encode(hash_hmac('sha1', $method . "\n" . $content_type . "\n" . $content_digest . "\n" . $date . "\n" . $request_url, $key, TRUE));
+            echo '</div>';*/
+
+            //Initiate cURL
+            $ch = curl_init($url);
+
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");  
+
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Content-Type: ' . $content_type,
+                'Content-Length: ' . strlen($data_string),
+                'x-gge4-content-sha1: ' . $content_digest,
+                'x-gge4-date: ' . $date,
+                'Authorization: ' . 'GGE4_API ' . $key_id . ':' . base64_encode(hash_hmac('sha1', $method . "\n" . $content_type . "\n" . $content_digest . "\n" . $date . "\n" . $request_url, $key, TRUE)),
+            ));
+
+            $response = json_decode(curl_exec($ch));
+            var_dump($response);
+            curl_close($ch);
+}
+
+function tokenize($card_number, $cardholder_name, $expiry) {
+    $data = array(
+              'gateway_id' => PAYEEZY_GATEWAY_ID,
+              'password' => PAYEEZY_API_PASSWORD,
+              'transaction_type' => '01', //pre-auth
+              'cc_number' => $card_number,
+              'cardholder_name' => $cardholder_name,
+              'amount' => '0.00',
+              'cc_expiry' => $expiry,
+            );
+            $data_string = json_encode($data);
+            //echo $data_string . '<br>';
+
+            $date = date('c');
+            $url = 'https://api.globalgatewaye4.firstdata.com/transaction/v27';
+            $request_url = '/transaction/v27';
+            $key_id = '587044';
+            $key = PAYEEZY_HMAC_KEY;
+            $method = 'POST';
+            $content_digest = sha1($data_string);
+            $content_type = 'application/json';
+
+            //Initiate cURL
+            $ch = curl_init($url);
+
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");  
+
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Content-Type: ' . $content_type,
+                'Content-Length: ' . strlen($data_string),
+                'x-gge4-content-sha1: ' . $content_digest,
+                'x-gge4-date: ' . $date,
+                'Authorization: ' . 'GGE4_API ' . $key_id . ':' . base64_encode(hash_hmac('sha1', $method . "\n" . $content_type . "\n" . $content_digest . "\n" . $date . "\n" . $request_url, $key, TRUE)),
+            ));
+
+            $response = json_decode(curl_exec($ch));
+            curl_close($ch);
+            var_dump($response);
+            return $response->transarmor_token;
+}
+
+function get_user_email($id) {
+    $email = get_user_meta($id, 'email', true);
+    if($email) return $email;
+    return get_user_by('id', $id)->data->user_email;
+}
+
+function stored_payment_method($id) {
+    $user_meta = get_user_meta($id);
+    if($user_meta['token'] && $user_meta['cardholder_name'] && $user_meta['monthly_amount'] && $user_meta['card_type'] && $user_meta['expiry_date']) return 'card';
+    return NULL;
+}
+
+function nice_stored_payment_method($id) {
+    switch(stored_payment_method($id)) {
+        case 'card':
+        $token = get_user_meta($id, 'token', true);
+        return 'Card ending in ' . substr($token, -4);
+        break;
+    }
+}
+
+function revoke_subscription($id) {
+    update_user_meta($id, 'subscription_type', 'basic');
+    update_user_meta($id, 'subscription_active', 'false');
+    remove_discord_user(get_user_meta($id, 'discord_id', true));
+}
+
+function has_subscription_expired($id, $time = 0) {
+    if($time === 0) $time = time();
+    $end_time = get_user_meta($id, 'subscription_end_time', true);
+
+    if($end_time <= $time) return TRUE;
+    return FALSE;
+}
+
+function is_subscription_active($id) {
+    if(get_user_meta($id, 'subscription_active', true) == 'true') return TRUE;
+    return FALSE;
+}
+function get_user_subscription($id) {
+    $sub_type = get_user_meta($id, 'subscription_type', true);
+    if(!$sub_type) return 'basic';
+    return $sub_type;
+}
+
+function add_transaction($id, $toAdd) {
+    $trans_array = get_user_meta($id, 'transactions', true);
+    if(!$trans_array) {
+        $trans_array = array();
+    }
+    array_push($trans_array, $toAdd);
+    update_user_meta($id, 'transactions', 'trans_array');
+}
+
 function get_var_dump($var) {
     ob_start();
     var_dump($var);

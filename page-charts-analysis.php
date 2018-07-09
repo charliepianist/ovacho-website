@@ -7,15 +7,12 @@
 
   //check if user has subscription
   $o_user_id = get_current_user_id(); 
-  if(get_user_meta($o_user_id, 'subscription_type', true) === 'classic' || current_user_can('administrator')): 
-
-      //check if subscription still valid
-      if(time() <= get_user_meta($o_user_id, 'subscription_end_time', true) || current_user_can('administrator')): ?>
+  if(get_user_meta($o_user_id, 'subscription_type', true) === 'classic' || current_user_can('administrator')): ?>
           <div class="_3_container w-container">
-            <?php while(have_posts()): the_post(); 
-                    the_content();
-                    endwhile;
-         
+            <h1 class="heading">Charts &amp; Analysis</h1>
+              <p class="paragraph_privacy1">Our analysis includes charts along with an analysis on upcoming catalysts, balance sheets, technical analysis, and a potential course of action.<span class="text-span-3"><br></span></p>
+
+            <?php          
               $o_args = array(
               'post_type' => 'chart-analysis',
               'orderby' => 'date',
@@ -39,19 +36,12 @@
             <?php get_template_part('parts/tickers-archive'); ?>
           </div>
       <!-- [if lte IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/placeholders/3.0.2/placeholders.min.js"></script><![endif] -->
-<?php 
-else: //CLASSIC EXPIRED 
-update_user_meta($o_user_id, 'subscription_type', 'basic');
-remove_discord_user(get_user_meta($o_user_id, 'discord_id', true));
-get_template_part('parts/payment/classic-expired');
-endif;
-else: //BASIC SUBSCRIPTION ?>
+<?php else: //BASIC SUBSCRIPTION ?>
 
   <div class="_3_container w-container">
-    <?php while(have_posts()): the_post(); 
-            the_content();
-            endwhile;
-  
+    <h1 class="heading">Charts &amp; Analysis</h1>
+    <p class="paragraph_privacy1">Access all of analyses and charts, as well as our ticker archive by <a href="<?php echo site_url('pricing');?>" style="color: #fff;">purchasing a subscription</a>! Our analysis includes charts along with an analysis on upcoming catalysts, balance sheets, technical analysis, and a potential course of action.<span class="text-span-3"><br></span></p>
+    <?php
       $o_args = array(
       'post_type' => 'basic-chart-analysis',
       'orderby' => 'date',

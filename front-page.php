@@ -1,6 +1,35 @@
 <!DOCTYPE html>
 <html data-wf-page="5aac99ecaf97838325230d58" data-wf-site="5a7fa1f338edac00018725fb">
-<?php get_header(); 
+<?php get_header();
+/*send_email('ovachoinvestments@gmail.com', 'Thank you! Your subscription was renewed automatically.', '<p style="text-align:center;">Your subscription with us has been automatically renewed. Here is your official receipt:</p>' . format_ctr('========== TRANSACTION RECORD ==========
+OVACHO LLC
+19 BIRCH DR
+PLAINSBORO, NJ 08536
+United States
+
+
+TYPE: Purchase
+
+ACCT: Visa                    $ 0.50 USD
+
+CARDHOLDER NAME : Charles Liu
+CARD NUMBER     : ############0000
+DATE/TIME       : 27 Jun 18 11:37:31
+REFERENCE #     : 001 1492039 T
+AUTHOR. #       : 031294
+TRANS. REF.     : 
+
+    Approved - Thank You 100
+
+
+Please retain this copy for your records.
+
+Cardholder will pay above amount to
+card issuer pursuant to cardholder
+agreement.
+========================================') . '<p style="color:#898989; text-align:center;"><a style="color:#898989;" href="' . site_url('privacy-policy') . '">PRIVACY POLICY</a> | <a style="color:#898989;" href="' . site_url('terms') . '">TERMS</a> | <a style="color:#898989;" href="' . site_url('account') . '">UNSUBSCRIBE</a></p>');*/
+
+  //var_dump(get_user_meta(get_current_user_id()));
   //identify_discord();
   //send_discord_message_to_user('194984299836080129', 'test');
 ?>

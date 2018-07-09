@@ -18,12 +18,20 @@ function orderby() {
 	return 'nicename';
 }
 
-if(current_user_can('administrator')) {
+if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
+	update_user_meta($_POST['user_id'], 'token', $_POST['token']);
+	update_user_meta($_POST['user_id'], 'cardholder_name', $_POST['cardholder_name']);
+	update_user_meta($_POST['user_id'], 'monthly_amount', $_POST['monthly_amount']);
+	update_user_meta($_POST['user_id'], 'card_type', $_POST['card_type']);
+	update_user_meta($_POST['user_id'], 'expiry_date', $_POST['expiry_date']);
+	echo 'Success';
+}else if(current_user_can('administrator')) {
 	switch($_GET['user_id']) {
 		case 'all':
 			$users = get_users(array(
 				'orderby' => orderby()
 			));
+			$count = 0;
 			foreach($users as $user) {
 				$count++;
 				user_dump($user);
@@ -36,6 +44,7 @@ if(current_user_can('administrator')) {
 			$users = get_users(array(
 				'orderby' => orderby()
 			));
+			$count = 0;
 			foreach($users as $user) {
 				$count++;
 				echo $user->user_login . ' (' . $user->id . ')';
@@ -50,7 +59,7 @@ if(current_user_can('administrator')) {
 			));
 			$count = 0;
 			foreach($users as $user) {
-				if(get_user_meta($user->id, 'subscription_type') != FALSE && get_user_meta($user->id, 'subscription_type') !== 'basic') {
+				if(get_user_subscription($user->id) !== 'basic') {
 					$count++;
 					user_dump($user);
 					echo '<br><hr><br><br>';
@@ -65,7 +74,7 @@ if(current_user_can('administrator')) {
 			));
 			$count = 0;
 			foreach($users as $user) {
-				if(get_user_meta($user->id, 'subscription_type') != FALSE && get_user_meta($user->id, 'subscription_type') !== 'basic') {
+				if(get_user_subscription($user->id) !== 'basic') {
 					$count++;
 					echo $user->user_login . ' (' . $user->id . ')';
 					echo '<br><hr><br><br>';
@@ -101,6 +110,7 @@ if(current_user_can('administrator')) {
 
 				case 'revoke':
 				update_user_meta($_GET['user_id'], 'subscription_type', 'basic');
+				update_user_meta($_GET['user_id'], 'subscription_active', 'false');
 				remove_discord_user(get_user_meta($_GET['user_id'], 'discord_id', true));
 				echo 'Success';
 				break;
@@ -108,6 +118,7 @@ if(current_user_can('administrator')) {
 				case 'subscribe':
 				update_user_meta($_GET['user_id'], 'subscription_type', 'classic');
 				update_user_meta($_GET['user_id'], 'subscription_end_time', strtotime('+1 month'));
+				update_user_meta($_GET['user_id'], 'subscription_active', 'false');
 				if(isset($_GET['discord_id'])) {
 					update_user_meta($_GET['user_id'], 'discord_id', $_GET['discord_id']);
 					add_discord_user($_GET['discord_id']);
@@ -118,6 +129,7 @@ if(current_user_can('administrator')) {
 				case 'subscribe_year':
 				update_user_meta($_GET['user_id'], 'subscription_type', 'classic');
 				update_user_meta($_GET['user_id'], 'subscription_end_time', strtotime('+1 year'));
+				update_user_meta($_GET['user_id'], 'subscription_active', 'false');
 				if(isset($_GET['discord_id'])) {
 					update_user_meta($_GET['user_id'], 'discord_id', $_GET['discord_id']);
 					add_discord_user($_GET['discord_id']);
@@ -128,6 +140,7 @@ if(current_user_can('administrator')) {
 				case 'subscribe_discount':
 				update_user_meta($_GET['user_id'], 'subscription_type', 'classic');
 				update_user_meta($_GET['user_id'], 'subscription_end_time', strtotime('+1 month'));
+				update_user_meta($_GET['user_id'], 'subscription_active', 'false');
 				update_user_meta($cust_id, 'discount', 'true');
 				update_user_meta($_GET['user_id'], 'discord_id', $_GET['discord_id']);
 				add_discord_user($_GET['discord_id']);
@@ -151,6 +164,11 @@ if(current_user_can('administrator')) {
 
 				case 'update_other':
 				update_user_meta($_GET['user_id'], $_GET['key'], $_GET['value']);
+				echo 'Success: <br>' . $_GET['key'] . ': ' . $_GET['value'];
+				break;
+
+				case 'update_payment':
+				echo '<form method="post" action="' . site_url('user-dump') . '">Token: <input name="token" type="text"><br>Cardholder Name:<input name="cardholder_name" type="text"><br>Monthly Amount: <input type="text" name="monthly_amount"><br>Card Type: <input type="text" name="card_type"><br>Expiry Date: <input placeholder="Ex: 0421" name="expiry_date" type="text"><br><input type="hidden" name="auth" value="' . USER_DUMP_AUTH . '"><input type="hidden" name="user_id" value="' . $_GET['user_id'] .'"><input type="submit"></form>';
 				break;
 
 				default:
