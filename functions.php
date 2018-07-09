@@ -888,7 +888,6 @@ add_action( 'login_form_rp', 'redirect_to_custom_password_reset');
 add_action( 'login_form_resetpass', 'redirect_to_custom_password_reset');
 
 function redirect_to_custom_password_reset() {
-    echo 'tet';
     if ( 'GET' == $_SERVER['REQUEST_METHOD'] ) {
         // Verify key / login combo
         $user = check_password_reset_key( $_REQUEST['key'], $_REQUEST['login'] );
