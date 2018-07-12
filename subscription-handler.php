@@ -39,16 +39,7 @@ if(isset($_POST) && isset($_POST['x_response_code']) && $_POST['x_response_code'
 			}
 
 			//store info
-			add_transaction($cust_id, array(
-					'address' => $_POST['x_address'] . ', ' . $_POST['x_city'] . ', '. $_POST['x_state'] . ', ' . $_POST['x_zip'] . ', ' . $_POST['x_country'],
-					'transaction_id' => $_POST['x_trans_id'],
-					'cardholder' => $_POST['CardHoldersName'],
-					'amount' => $_POST['DollarAmount'],
-					'cust_reference' => $_POST['x_po_num'],
-					'invoice_num' => $_POST['x_invoice_num'],
-					'exact_ctr' => $_POST['exact_ctr'],
-					'card_number' => $_POST['Card_Number']
-				));
+			add_transaction($cust_id, get_var_dump($_POST));
 		}else {
 			//store POST data for reference
 			update_user_meta($cust_id, 'last_purchase', $get_var_dump($_POST));
