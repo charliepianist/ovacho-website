@@ -34,7 +34,11 @@ function charge_subscription($id) {
     switch($user_meta['subscription_type']) {
         case 'classic':
             if(stored_payment_method($id) == 'card') {
-            $discount_amount = number_format(20.0 - $user_meta['monthly_amount'], 2);
+            $amount = '20.00';
+            if(isset($user_meta['monthly_amount'])) $amount = $user_meta['monthly_amount'];
+            if(firstTwoMonths() && $user_meta['discount'] == 'true') $amount = '15.00';
+
+            $discount_amount = number_format(20.0 - $amount, 2);
             $discount_indicator = '0';
             if($discount_amount !== '0.00') $discount_indicator = '1';
             //$customer_reference = 'USD';
@@ -47,7 +51,7 @@ function charge_subscription($id) {
               'transaction_type' => '00', //purchase
               'transarmor_token' => $user_meta['token'],
               'cardholder_name' => $user_meta['cardholder_name'],
-              'amount' => $user_meta['monthly_amount'],
+              'amount' => $amount,
               'credit_card_type' => $user_meta['card_type'],
               'cc_expiry' => $user_meta['expiry_date'],
               'reference_no' => $reference_no,
@@ -58,7 +62,7 @@ function charge_subscription($id) {
               'ecommerce_flag' => '2', // MOTO recurring payments
               'tax1_amount' => '0.00', //for level 2 data
               'level3' => array( //LEVEL 3 DATA
-                'discount_amount' => $discount_amount,
+                'discount_amount' => $amount,
                 'duty_amount' => '0.00',
                 'freight_amount' => '0.00',
                 'line_items' => array(
@@ -68,10 +72,10 @@ function charge_subscription($id) {
                         'discount_amount' => $discount_amount,
                         'discount_indicator' => $discount_indicator,
                         'gross_net_indicator' => '1', //tax included
-                        'line_item_total' => $user_meta['monthly_amount'],
+                        'line_item_total' => $amount,
                         'product_code' => '099102', //product code
                         'quantity' => '1',
-                        'unit_cost' => $user_meta['monthly_amount'],
+                        'unit_cost' => $amount,
                         'unit_of_measure' => 'EA',
                     ),
                 ),
@@ -120,13 +124,7 @@ function charge_subscription($id) {
             curl_close($ch);
 
             //add to user meta
-            add_transaction($id, array(
-                'cardholder' => $user_meta['cardholder_name'],
-                'amount' => $user_meta['monthly_amount'],
-                'cust_reference' => $customer_reference,
-                'invoice_num' => $reference_no,
-                'exact_ctr' => $response['ctr'],
-            ));
+            add_transaction($id, get_var_dump($response));
 
             $links_html = '<p style="color:#898989; text-align:center;"><a style="color:#898989;" href="' . site_url('privacy-policy') . '">PRIVACY POLICY</a> | <a style="color:#898989;" href="' . site_url('terms') . '">TERMS</a>';
 
