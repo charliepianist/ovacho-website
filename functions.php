@@ -291,7 +291,7 @@ function get_user_email($id) {
 
 function stored_payment_method($id) {
     $user_meta = get_user_meta($id);
-    if($user_meta['token'] && $user_meta['cardholder_name'] && $user_meta['monthly_amount'] && $user_meta['expiry_date']) return 'card';
+    if($user_meta['token'] && $user_meta['cardholder_name'] && $user_meta['monthly_amount'] && $user_meta['expiry_date'] && $user_meta['card_type']) return 'card';
     if(strcasecmp($user_meta['card_type'], 'paypal') == 0) return 'paypal';
     return NULL;
 }
