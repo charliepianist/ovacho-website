@@ -448,13 +448,13 @@ img {
 }
 
 ._1_navlink {
-  padding-left: 20px;
+  padding-left: 18px;
   background-color: transparent;
   -webkit-transition: color 500ms ease;
   transition: color 500ms ease;
   font-family: urw-din, sans-serif;
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 400;
   letter-spacing: 1px;
   text-decoration: none;

@@ -49,7 +49,7 @@
         $date = intval(get_user_meta(get_current_user_id(), 'subscription_end_time', true));
         $time_left = $date - time();
         $hours_left = ceil($time_left / 3600);
-        $days_left = intdiv($hours_left, 24);
+        $days_left = (int) ($hours_left / 24);
         $hours_left = $hours_left % 24;
         echo '<br>Current Period Ends: ';
         if($days_left === 0) {
