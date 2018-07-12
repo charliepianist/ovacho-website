@@ -45,7 +45,7 @@
     <?php echo $o_error; ?>
     <p class="paragraph_privacy1"><span class="text_myaccount">Email Address: <?php echo wp_get_current_user()->data->user_email;?><br>
       Subscription Plan: <?php $sub_type = get_user_subscription(get_current_user_id()); echo ucwords($sub_type); 
-      if($sub_type !== 'Basic' || TRUE) {
+      if($sub_type !== 'Basic') {
         $date = intval(get_user_meta(get_current_user_id(), 'subscription_end_time', true));
         $time_left = $date - time();
         $hours_left = ceil($time_left / 3600);
@@ -61,6 +61,11 @@
             echo $days_left . ' days, 1 hour';
           }else echo $days_left . ' days, ' . $hours_left . ' hours';
         }
+
+        //whether subscription is active
+        echo '<br>';
+        if(is_subscription_active(get_current_user_id())) echo 'Automatic Renewal: Active';
+        else echo 'Automatic Renewal: <span style="color:red;">Inactive</span>';
       }
         ?></span></p>
         <?php $user_id = get_current_user_id(); 
