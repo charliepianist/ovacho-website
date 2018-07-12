@@ -167,6 +167,7 @@ if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
 				break;
 
 				case 'update_payment':
+				echo get_user_by('id', $_GET['user_id'])->data->user_login . ' (' . $_GET['user_id'] . ')<br><br>';
 				echo '<form method="post" action="' . site_url('user-dump') . '">Token: <input name="token" type="text"><br>Cardholder Name:<input name="cardholder_name" type="text"><br>Monthly Amount: <input type="text" name="monthly_amount"><br>Card Type: <input type="text" name="card_type"><br>Expiry Date: <input placeholder="Ex: 0421" name="expiry_date" type="text"><br><input type="hidden" name="auth" value="' . USER_DUMP_AUTH . '"><input type="hidden" name="user_id" value="' . $_GET['user_id'] .'"><input type="submit"></form>';
 				break;
 
