@@ -33,6 +33,7 @@ function charge_subscription($id) {
 
     switch($user_meta['subscription_type']) {
         case 'classic':
+            if(stored_payment_method($id) == 'card') {
             $discount_amount = number_format(20.0 - $user_meta['monthly_amount'], 2);
             $discount_indicator = '0';
             if($discount_amount !== '0.00') $discount_indicator = '1';
@@ -136,7 +137,7 @@ function charge_subscription($id) {
                 $links_html .= ' | <a style="color:#898989;" href="' . site_url('account') . '">UNSUBSCRIBE</a></p>';
 
                 //send email for success
-                send_email($get_user_email($id), 'Thank you! Your subscription was renewed automatically.', '<p style="text-align:center;">Your subscription with us has been automatically renewed. Here is your official receipt:</p>' . 
+                send_email(get_user_email($id), 'Thank you! Your subscription was renewed automatically.', '<p style="text-align:center;">Your subscription with us has been automatically renewed. Here is your official receipt:</p>' . 
                     format_ctr($response['ctr']) . 
                     $links_html);
                 return strtotime('+1 month');
@@ -145,10 +146,11 @@ function charge_subscription($id) {
             //error in transaction
             //send email for error
             $links_html .= '</p>';
-            send_email($get_user_email($id), 'There was an error renewing your subscription.', '<p style="text-align:center;">There was an error processing the transaction to renew your subscription. Here is your official receipt:</p>' . 
+            send_email(get_user_email($id), 'There was an error renewing your subscription.', '<p style="text-align:center;">There was an error processing the transaction to renew your subscription. Here is your official receipt:</p>' . 
                 format_ctr($response['ctr']) . 
                 '<p style="text-align:center;"><a href="' . site_url('pricing') . '">Renew your subscription?</a></p>' .
                 $links_html);
+            }
         break;
     }
     return FALSE;
@@ -289,7 +291,8 @@ function get_user_email($id) {
 
 function stored_payment_method($id) {
     $user_meta = get_user_meta($id);
-    if($user_meta['token'] && $user_meta['cardholder_name'] && $user_meta['monthly_amount'] && $user_meta['card_type'] && $user_meta['expiry_date']) return 'card';
+    if($user_meta['token'] && $user_meta['cardholder_name'] && $user_meta['monthly_amount'] && $user_meta['expiry_date']) return 'card';
+    if(strcasecmp($user_meta['card_type'], 'paypal') == 0) return 'paypal';
     return NULL;
 }
 
@@ -300,6 +303,7 @@ function nice_stored_payment_method($id) {
         return 'Card ending in ' . substr($token, -4);
         break;
     }
+    return 'N/A';
 }
 
 function revoke_subscription($id) {

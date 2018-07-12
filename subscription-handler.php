@@ -22,15 +22,15 @@ if(isset($_POST) && isset($_POST['x_response_code']) && $_POST['x_response_code'
     				update_user_meta($cust_id, 'discord_id', $_POST['x_reference_3']);
     				update_user_meta($cust_id, 'subscription_type', 'classic');
     				update_user_meta($cust_id, 'subscription_end_time', strtotime('+1 month'));
-    				update_user_meta($cust_id, 'subscription_active', 'true');
     				update_user_meta($cust_id, 'email', $_POST['Client_Email']);
+    				update_user_meta($cust_id, 'card_type', $_POST['TransactionCardType']);
     				if(isset($_POST['Card_Number'])) {
     					//if user used card, then store token data for future charges
     					update_user_meta($cust_id, 'token', $_POST['Card_Number']);
     					update_user_meta($cust_id, 'cardholder_name', $_POST['CardHoldersName']);
     					update_user_meta($cust_id, 'monthly_amount', $amount);
-    					update_user_meta($cust_id, 'card_type', $_POST['TransactionCardType']);
     					update_user_meta($cust_id, 'expiry_date', $_POST['Expiry_Date']);
+    					update_user_meta($cust_id, 'subscription_active', 'true');
     				}
 
     				//add discord role "Tier 1"
@@ -47,6 +47,7 @@ if(isset($_POST) && isset($_POST['x_response_code']) && $_POST['x_response_code'
 					'cust_reference' => $_POST['x_po_num'],
 					'invoice_num' => $_POST['x_invoice_num'],
 					'exact_ctr' => $_POST['exact_ctr'],
+					'card_number' => $_POST['Card_Number']
 				));
 		}else {
 			//store POST data for reference

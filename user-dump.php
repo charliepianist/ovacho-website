@@ -19,6 +19,7 @@ function orderby() {
 }
 
 if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
+	update_user_meta($_POST['user_id'], 'subscription_active', 'true');
 	update_user_meta($_POST['user_id'], 'token', $_POST['token']);
 	update_user_meta($_POST['user_id'], 'cardholder_name', $_POST['cardholder_name']);
 	update_user_meta($_POST['user_id'], 'monthly_amount', $_POST['monthly_amount']);
@@ -109,9 +110,7 @@ if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
 				break;
 
 				case 'revoke':
-				update_user_meta($_GET['user_id'], 'subscription_type', 'basic');
-				update_user_meta($_GET['user_id'], 'subscription_active', 'false');
-				remove_discord_user(get_user_meta($_GET['user_id'], 'discord_id', true));
+				revoke_subscription($_GET['user_id']);
 				echo 'Success';
 				break;
 
@@ -169,6 +168,11 @@ if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
 
 				case 'update_payment':
 				echo '<form method="post" action="' . site_url('user-dump') . '">Token: <input name="token" type="text"><br>Cardholder Name:<input name="cardholder_name" type="text"><br>Monthly Amount: <input type="text" name="monthly_amount"><br>Card Type: <input type="text" name="card_type"><br>Expiry Date: <input placeholder="Ex: 0421" name="expiry_date" type="text"><br><input type="hidden" name="auth" value="' . USER_DUMP_AUTH . '"><input type="hidden" name="user_id" value="' . $_GET['user_id'] .'"><input type="submit"></form>';
+				break;
+
+				case 'get_meta':
+				echo $_GET['key'] . ':<br>';
+				var_dump(get_user_meta($_GET['user_id'], $_GET['key'], true));
 				break;
 
 				default:

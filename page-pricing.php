@@ -27,9 +27,9 @@
         }else echo '<p class="pricing to_fade_in" style="display:none;">You must <a style="color: #fff;" href="' . site_url('login/?redirect=') . urlencode(site_url() . $_SERVER['REQUEST_URI']) . '">login</a> to purchase this subscription.</p>';
         ?>
       </div>
-      <div class="w-col w-col-4">
+      <!--<div class="w-col w-col-4">
         <h1 class="_3_chartname">Premium [Coming Soon!]</h1>
-        <p class="pricing_plat" style="padding-bottom:1.3em;"><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br></p><a href="#" data-w-id="e7b1faab-8b5a-267d-3e32-46f78309180a" class="pricing_button w-button">TBD</a></div>
+        <p class="pricing_plat" style="padding-bottom:1.3em;"><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br></p><a href="#" data-w-id="e7b1faab-8b5a-267d-3e32-46f78309180a" class="pricing_button w-button">TBD</a></div>-->
     </div>
   </div>
 <script src="<?php bloginfo('stylesheet_directory');?>/js/md5.min.js"></script>
