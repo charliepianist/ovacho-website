@@ -279,7 +279,7 @@ function tokenize($card_number, $cardholder_name, $expiry) {
             curl_close($ch);
             var_dump($response);
             return $response->transarmor_token;
-}
+} 
 
 function get_user_email($id) {
     $email = get_user_meta($id, 'email', true);
@@ -837,7 +837,7 @@ add_filter( 'authenticate', 'blank_username_password', 1, 3);
 function logout_page() {
 //global $page_id;
 //$login_page = site_url( '/?page_id='. $page_id. '/' );
-$login_page = site_url('login');;
+$login_page = site_url('login');
 wp_redirect( $login_page );
 exit;
 }
