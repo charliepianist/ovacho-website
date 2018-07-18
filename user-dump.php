@@ -71,13 +71,28 @@ if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
 			echo 'Total subscribers: ' . $count;
 		break;
 
+		case 'active_subscriber':
+			$users = get_users(array(
+				'orderby' => orderby(),
+			));
+			$count = 0;
+			foreach($users as $user) {
+				if(get_user_subscription($user->id) !== 'basic' && get_user_meta($user->id, 'subscription_active', true) == 'true') {
+					$count++;
+					user_dump($user);
+					echo '<br><hr><br><br>';
+				}
+			}
+			echo 'Total subscribers: ' . $count;
+		break;
+
 		case 'subscriber_names':
 			$users = get_users(array(
 				'orderby' => orderby(),
 			));
 			$count = 0;
 			foreach($users as $user) {
-				if(get_user_subscription($user->id) !== 'basic') {
+				if(get_user_subscription($user->id) !== 'basic' && get_user_meta($user->id, 'subscription_active', true) == 'true') {
 					$count++;
 					echo $user->user_login . ' (' . $user->id . ')';
 					echo '<br><hr><br><br>';
