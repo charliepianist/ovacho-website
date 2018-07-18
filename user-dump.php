@@ -77,7 +77,7 @@ if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
 			));
 			$count = 0;
 			foreach($users as $user) {
-				if(get_user_subscription($user->id) !== 'basic' && get_user_meta($user->id, 'subscription_active', true) == 'true') {
+				if(get_user_subscription($user->id) !== 'basic' && get_user_meta($user->id, 'subscription_active', true && stored_payment_method($user->id) == 'card') == 'true') {
 					$count++;
 					user_dump($user);
 					echo '<br><hr><br><br>';
