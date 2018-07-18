@@ -35,7 +35,7 @@ if(isset($_POST) && isset($_POST['x_response_code']) && $_POST['x_response_code'
     					update_user_meta($cust_id, 'cardholder_name', $_POST['CardHoldersName']);
     					update_user_meta($cust_id, 'monthly_amount', $amount);
     					update_user_meta($cust_id, 'expiry_date', $_POST['Expiry_Date']);
-    					update_user_meta($cust_id, 'subscription_active', 'true');
+    					if($_POST['TransactionCardType'] != 'PayPal') update_user_meta($cust_id, 'subscription_active', 'true');
     				}
 
     				//add discord role "Tier 1"
