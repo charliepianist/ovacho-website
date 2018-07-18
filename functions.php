@@ -334,7 +334,7 @@ function add_transaction($id, $toAdd) {
         $trans_array = array();
     }
     array_push($trans_array, $toAdd);
-    update_user_meta($id, 'transactions', 'trans_array');
+    update_user_meta($id, 'transactions', $trans_array);
 }
 
 function get_var_dump($var) {

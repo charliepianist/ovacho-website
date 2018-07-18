@@ -1,6 +1,11 @@
 <?php /*Template Name: Subscription Handler **Backend** */ ?>
 <?php
-get_header();
+
+if(isset($_POST['x_cust_id'])) {
+	//store info
+	add_transaction($_POST['x_cust_id'], get_var_dump($_POST));
+}
+
 //success
 if(isset($_POST) && isset($_POST['x_response_code']) && $_POST['x_response_code'] == '1' && $_POST['x_login'] === PAYEEZY_LOGIN) {
     
@@ -11,7 +16,7 @@ if(isset($_POST) && isset($_POST['x_response_code']) && $_POST['x_response_code'
 
 		$cust_id = $_POST['x_cust_id'];
 		//check if bank approval
-		if(isset($_POST['Transaction_Approved']) && $_POST['Transaction_Error'] == "false") {
+		if(isset($_POST['Transaction_Approved'])) {
     
 			//determine which subscription
 			switch($_POST['x_description']) {
@@ -37,14 +42,10 @@ if(isset($_POST) && isset($_POST['x_response_code']) && $_POST['x_response_code'
     				add_discord_user($_POST['x_reference_3']);
 				break;
 			}
-
-			//store info
-			add_transaction($cust_id, get_var_dump($_POST));
 		}else {
 			//store POST data for reference
 			update_user_meta($cust_id, 'last_purchase', $get_var_dump($_POST));
 		}
 	}
 }
-get_footer();
 ?>
