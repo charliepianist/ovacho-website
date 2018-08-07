@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html data-wf-page="5aac99ecaf97838325230d58" data-wf-site="5a7fa1f338edac00018725fb">
 <?php get_header();
+//charge_subscription(1);
+//test_token('8264123179982660', 'Jason Zhu', '0521', 'VISA');
+//echo bcdiv(base_convert(base_convert(bcmul('865870120000', 3423324), 10, 36), 36, 10), '865870120000');
 /*send_email('ovachoinvestments@gmail.com', 'Thank you! Your subscription was renewed automatically.', '<p style="text-align:center;">Your subscription with us has been automatically renewed. Here is your official receipt:</p>' . format_ctr('========== TRANSACTION RECORD ==========
 OVACHO LLC
 19 BIRCH DR

@@ -1,5 +1,13 @@
 <div class="w-form">
 	<form name="email-form2" id="email-form2" action="<?php echo site_url('wp-login.php?action=register'); ?>" method="post" novalidate="novalidate" data-name="Email Form" autocomplete="off">
+		<?php //get referrer id
+		$ref_id = '';
+		if(isset($_GET) && $_GET['ref']) $ref_id = reverse_referral_id($_GET['ref']);
+		if($ref_id) {
+			//HIDDEN REFERRER FORM FIELD
+			echo '<input type="hidden" name="ref_id" value="' . $ref_id . '">';
+		} ?>
+		<!-- VISIBLE INPUTS -->
 		<input type="text" class="text-field w-input" maxlength="256" name="full_name" data-name="Full Name" placeholder="Full Name" id="full_name">
 		<input type="text" class="text-field w-input" maxlength="256" name="user_login" data-name="Username" placeholder="Username" id="user_login">
 		<input type="email" class="text-field w-input" maxlength="256" name="user_email" data-name="Email 3" placeholder="Email Address" id="user_email" value="">

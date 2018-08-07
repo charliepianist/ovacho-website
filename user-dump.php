@@ -77,7 +77,22 @@ if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
 			));
 			$count = 0;
 			foreach($users as $user) {
-				if(get_user_subscription($user->id) !== 'basic' && get_user_meta($user->id, 'subscription_active', true && stored_payment_method($user->id) == 'card') == 'true') {
+				if(get_user_subscription($user->id) !== 'basic' && get_user_meta($user->id, 'subscription_active', true) == 'true' && stored_payment_method($user->id) == 'card') {
+					$count++;
+					user_dump($user);
+					echo '<br><hr><br><br>';
+				}
+			}
+			echo 'Total subscribers: ' . $count;
+		break;
+
+		case 'real_subscriber':
+			$users = get_users(array(
+				'orderby' => orderby(),
+			));
+			$count = 0;
+			foreach($users as $user) {
+				if(get_user_subscription($user->id) !== 'basic' && get_user_meta($user->id, 'transactions', true)) {
 					$count++;
 					user_dump($user);
 					echo '<br><hr><br><br>';
@@ -186,6 +201,11 @@ if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
 				case 'update_payment':
 				echo get_user_by('id', $_GET['user_id'])->data->user_login . ' (' . $_GET['user_id'] . ', ' . get_user_meta($_GET['user_id'], 'first_name', true) . ')<br><br>';
 				echo '<form method="post" action="' . site_url('user-dump') . '">Token: <input name="token" type="text"><br>Cardholder Name:<input name="cardholder_name" type="text"><br>Monthly Amount: <input type="text" name="monthly_amount"><br>Card Type: <input type="text" name="card_type"><br>Expiry Date: <input placeholder="Ex: 0421" name="expiry_date" type="text"><br><input type="hidden" name="auth" value="' . USER_DUMP_AUTH . '"><input type="hidden" name="user_id" value="' . $_GET['user_id'] .'"><input type="submit"></form>';
+				break;
+
+				case 'discord_username':
+				if(isset($_GET) && isset($_GET['discord_id'])) echo 'ID: ' . $_GET['discord_id'] . '<br>' . 'Username: ' . get_discord_username($_GET['discord_id']) . '<br><br>';
+				echo '<form method="get" action="' . site_url('user-dump') . '">Discord ID: <input name="discord_id" type="text"><input name="action" type="hidden" value="discord_username"><input type="submit"></form>';
 				break;
 
 				case 'get_meta':

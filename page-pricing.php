@@ -2,7 +2,22 @@
 
 <!DOCTYPE html>
 <html>
-<?php get_header(); ?>
+<?php get_header(); 
+//referrals
+if(isset($_GET) && $_GET['ref'] && is_user_logged_in()) {
+  $ref_id = reverse_referral_id($_GET['ref']);
+  //valid referrer and current user hasn't subscribed yet
+  if($ref_id && !has_subscribed(get_current_user_id()) && $ref_id != get_current_user_id()) {
+    //ref_id field used to determine who to give referral credit to
+    update_user_meta(get_current_user_id(), 'ref_id', $ref_id);
+  }
+}
+
+//calculate amount
+$amount = get_forms_amount(get_current_user_id());
+
+
+?>
 
 <div class="_3_container w-container">
     <h1 class="heading">Subscription Pricing</h1>
@@ -13,16 +28,15 @@
       <div class="w-col w-col-4">
         <h1 class="_3_chartname">Classic [<span class="text-limited-time text-span-16">Limited Time</span>]</h1>
         <p class="pricing"><span class="text-span-7">Watchlist/Recap<br></span>• Daily 16 Stock Watchlist<br>• Daily 16 Stock Recap<br>• Special Watchlists<br>‍&emsp;• Large-Cap<br>‍&emsp;• Options<br><br><span><strong class="bold-text">Charts/Analysis</strong></span><br>• 5 - 25+  Technical Stock Charts/Week<br>• 3 - 12+ Stock Analyses/Week<br>• Request Tickers For Analyses<br>‍<br><span class="text-span-9">Discord</span><br>• Full Access To Discord Chatrooms<br>• Intra-Day Alerts<br>• Full Access To Stock Bots<br>‍<br><span class="text-span-10">Resources</span><br>• Access To YouTube Videos<br>• Access To Articles &amp; Guides<br>• Access To Blog &amp; Newsletters<br>• Priority Access To Analyst Team <br>
-          <?php if(firstWeek()): ?><br><span class="limited-time text-span-17">LIMITED TIME Promotion <br></span><span class="pricing-date text-span-18">(06/27 - 07/04)</span><span class="limited-time text-span-17"><br></span><span class="text-span-3">$15/month for first 2 months<br></span>
-          <?php endif; ?>
-        </p><a href="#" data-w-id="c5199c12-e32e-d2be-a248-cf82a26d0f7a" class="pricing_button w-button" onclick="classicClick();" id="classic_button"><?php if(firstWeek()): ?><span class="tester text-span-15">
-        $20</span> $15/month for 2 months <?php else: ?> $20/month<?php endif; ?></a>
+        </p><a href="#" data-w-id="c5199c12-e32e-d2be-a248-cf82a26d0f7a" class="pricing_button w-button" onclick="classicClick();" id="classic_button"><?php if((get_user_meta(get_current_user_id(), 'discount', true) == 'true' && firstTwoMonths()) || referred_first_time(get_current_user_id())) echo '$15 for first month, then ';?>$20/month</a>
+        
         <?php 
         if(is_user_logged_in()) {
           //check if user has no subscriptions
         	if(get_user_subscription(get_current_user_id()) === 'basic') {
             //form with needed values
         		get_template_part('parts/payment/classic-form');
+            echo '<p class="regular-text" style="text-align: center; margin-top:0.25em; line-height:20px;"><a class="white-link" href="' . site_url('account') . '">Referral Credit</a>: $' . get_referral_credit(get_current_user_id()) . '<br>(Automatically Applied)</p>';
         	}else echo '<p class="pricing to_fade_in" style="display:none;">You are already subscribed to our Classic Subscription.</p>';
         }else echo '<p class="pricing to_fade_in" style="display:none;">You must <a style="color: #fff;" href="' . site_url('login/?redirect=') . urlencode(site_url() . $_SERVER['REQUEST_URI']) . '">login</a> to purchase this subscription.</p>';
         ?>
@@ -66,7 +80,7 @@
   function submitClassicForm() {
     var date = new Date();
       var seconds = date.getTime() / 1000 - ((date.getTime() / 1000) % 1);
-      var hash = md5("<?php echo PAYEEZY_LOGIN; ?>^<?php echo FP_SEQUENCE; ?>^" + seconds + "^<?php if(firstWeek() || (get_user_meta(get_current_user_id(), 'discount') === 'true' && firstTwoMonths())) echo '15.00'; else echo '20.00';?>^USD", "<?php echo PAYEEZY_TRANSACTION_KEY; ?>");
+      var hash = md5("<?php echo PAYEEZY_LOGIN; ?>^<?php echo FP_SEQUENCE; ?>^" + seconds + "^<?php echo $amount?>^USD", "<?php echo PAYEEZY_TRANSACTION_KEY; ?>");
       $('#x_fp_timestamp').val(seconds);
       $('#x_fp_hash').val(hash);
       $('#submit_form').click();

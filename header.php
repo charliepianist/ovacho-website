@@ -8,6 +8,8 @@
 
     gtag('config', 'UA-118022164-1');
   </script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" type="text/javascript" intergrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://js.stripe.com/v3/"></script>
 
   <?php
     //current url

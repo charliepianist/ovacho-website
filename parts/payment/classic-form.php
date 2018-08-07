@@ -1,5 +1,22 @@
 <div class="to_fade_in" style="display: none;">
 	<?php 
+	//amount to charge
+	$amount = get_forms_amount(get_current_user_id());
+	//product code
+	$product_code = '';
+	switch($amount) {
+		case '15.00':
+		$product_code = '099100';
+		break;
+		case '10.00':
+		$product_code = '099104';
+		break;
+		case '5.00':
+		$product_code = '099103';
+		break;
+		default:
+		$product_code = '099102';
+	}
 //renew option
     /*if(stored_payment_method(get_current_user_id())) {
         echo '<a onclick="renewSubscriptionButton();" class="w-button pricing_button">Use Stored Payment Method (' . nice_stored_payment_method(get_current_user_id()) . ')</a><p style="text-align:center; margin-bottom: 0.5em; color: #f3f3f3; line-height: 15px; font-size: 13px; margin-top:0.5em;"><strong>Or use a new payment method:</strong></p>';
@@ -8,6 +25,7 @@
               </form>';
     }*/
 	?>
+	<br>
 	<form action="https://checkout.globalgatewaye4.firstdata.com/pay" id="pay_now_form_9887b9a25c" method="post" style="margin-bottom: 0px;">
 		<input type="number" class="text-field w-input" maxlength="30" value="<?php echo get_user_meta(get_current_user_id(), 'discord_id', true);?>" name="x_reference_3" placeholder="Discord ID (Ex: 239132435706761325)" id="discord_id" required style="margin-bottom: 0.5em; -webkit-appearance: none;">
 		<p id="discord_help_link" style="text-align:center; margin-bottom: 0.5em; color: #f3f3f3; line-height: 15px; font-size: 13px;"><a href="#" class="white-link" onclick="discordHelpLinkClick();">How do I find my Discord ID?</a></p>
@@ -18,10 +36,10 @@
 		<input type="hidden" name="x_login" value="<?php echo PAYEEZY_LOGIN; ?>">
 		<input type="hidden" name="x_fp_sequence" value="<?php echo FP_SEQUENCE; ?>">
 		<input type="hidden" name="x_fp_timestamp" id="x_fp_timestamp" value="">
-		<input type="hidden" name="x_amount" value="<?php if(firstWeek() || (get_user_meta(get_current_user_id(), 'discount', true) === 'true' && firstTwoMonths())) echo '15.00'; else echo '20.00'; ?>">
+		<input type="hidden" name="x_amount" value="<?php echo $amount; ?>">
 		<input type="hidden" name="x_fp_hash" id="x_fp_hash" value="">
 		<input type="hidden" name="x_show_form" value="PAYMENT_FORM">
-		<input type="hidden" name="x_type" value="AUTH_CAPTURE">
+		<input type="hidden" name="x_type" value="<?php if($amount === '0.00') echo 'AUTH_ONLY'; else echo 'AUTH_CAPTURE'; ?>">
 		<input type="hidden" name="x_currency_code" value="USD">
 		<!--<input type="hidden" name="x_recurring_billing" value="TRUE">
 		<input type="hidden" name="x_recurring_billing_id" value="<?php echo CLASSIC_SUBSCRIPTION_ID; ?>">
@@ -34,9 +52,9 @@
 		<input type="hidden" name="x_po_num" value="<?php echo $order_id; ?>">
 		<input type="hidden" name="x_description" value="Classic Subscription">
 		<?php function discounted() {
-			return firstWeek() || (get_user_meta(get_current_user_id(), 'discount', true) === 'true' && firstTwoMonths());
+			return firstWeek() || (get_user_meta(get_current_user_id(), 'discount', true) === 'true' && firstTwoMonths()) || referred_first_time(get_current_user_id());
 		}?>
-		<input type="hidden" name="x_line_item" value="<|><|><?php if(discounted()) echo 'Discounted '; ?>Classic Subscription (1 Month)<|>1<|><?php if(discounted()) echo '15.00'; else echo '20.00'; ?><|><|><?php if(discounted()) echo '099101'; else echo '099102';?><|>91528<|>Each<|><|><|>0.00<|><|><?php if(discounted()) echo '0.00<|>15.00'; else echo '0.00<|>20.00'; ?>">
+		<input type="hidden" name="x_line_item" value="<|><|><?php if($amount < DEFAULT_SUBSCRIPTION_AMOUNT) echo 'Discounted '; ?>Classic Subscription (1 Month)<|>1<|><?php echo $amount; ?><|><|><?php echo $product_code;?><|>91528<|>Each<|><|><|>0.00<|><|>0.00<|><?php echo $amount; ?>">
 
 		<!-- LEVEL 3 PROCESSING FIELDS -->
 		<input type="hidden" name="x_tax" value="0.00">
@@ -60,6 +78,10 @@
 		<input type="submit" style="display:none;" id="submit_form">
 	</form>
 	<button data-w-id="c5199c12-e32e-d2be-a248-cf82a26d0f7a" class="pricing_button w-button" id="submit_classic_form" style="margin-top:0px; width:100%;" onclick="payNowClick();">Pay Now</button>
-	<p id="no_discord_link" style="text-align:center; margin-bottom: 0.5em; margin-top:0.5em; color: #f3f3f3; line-height: 15px; font-size: 13px;"><a href="#" class="white-link" onclick="noDiscordClick();">Don't use Discord?</a></p>
-	<button data-w-id="c5199c12-e32e-d2be-a248-cf82a26d0f7a" class="pricing_button w-button" id="no_discord_submit" style="margin-top:0.5em; width:100%; display:none;" onclick="payNowWithoutDiscordClick();">Pay Now (without Discord)</button>
+	<p style="text-align:center; margin-bottom: 0.5em; margin-top:0.5em; color: #f3f3f3; line-height: 15px; font-size: 13px;"><a id="no_discord_link" href="#" class="white-link" onclick="noDiscordClick();">Don't use Discord?</a>
+	<span id="no_discord_submit" style="display:none;"> <button data-w-id="c5199c12-e32e-d2be-a248-cf82a26d0f7a" class="pricing_button w-button" style="margin-top:0.5em; margin-bottom:0.5em; width:100%;" onclick="payNowWithoutDiscordClick();">Pay Now (without Discord)</button></span>
+	<?php if($amount === '0.00'): ?>
+		<a href="<?php echo site_url('subscribe-ref/?prod=' . CLASSIC_SUBSCRIPTION_ID . '&timestamp=' . time()); ?>" class="white-link">No credit/debit card?</a>
+	<?php endif; ?>
+	</p>
 </div>

@@ -45,7 +45,7 @@
     <?php echo $o_error; ?>
     <p class="paragraph_privacy1"><span class="text_myaccount">Email Address: <?php echo wp_get_current_user()->data->user_email;?><br>
       Subscription Plan: <?php $sub_type = get_user_subscription(get_current_user_id()); echo ucwords($sub_type); 
-      if($sub_type !== 'Basic') {
+      if($sub_type !== 'basic') {
         $date = intval(get_user_meta(get_current_user_id(), 'subscription_end_time', true));
         $time_left = $date - time();
         $hours_left = ceil($time_left / 3600);
@@ -74,7 +74,7 @@
           <a href="#" id="initial_cancel_button" data-w-id="6413a6ba-b27b-e4d2-f56c-bd4746d05e73" class="change_myaccount w-button" onclick="cancel_subscription_click();">Cancel Subscription</a>
           <form id="confirm_cancel" method="post" action="<?php echo site_url('account'); ?>" style="display:none; padding-top:0.2em; ">
             <p class="paragraph_privacy1"><span class="text_myaccount"> Enter your password to confirm: </span></p>
-            <input type="password" class="text-field-2 w-input" maxlength="256" name="cancel_sub_password" data-name="Current Password" placeholder="Current Password" id="Current-Password" required="">
+            <input type="password" class="text-field-2 w-input" maxlength="256" name="cancel_sub_password" data-name="Current Password" placeholder="Current Password" id="cancel_sub_password" required="">
             <input type="hidden" name="cancel_sub" value="true">
 
             <input type="submit" value="Cancel Subscription"class="change_myaccount w-button">
@@ -88,7 +88,22 @@
             <?php endif; ?>
           <?php endif; ?>
         <?php endif; ?>
-    <p class="paragraph_privacy1"><span class="text_myaccount"><br>Change Password<br></span></p>
+    <!-- REFERRAL LINK -->
+    <p class="paragraph_privacy1 settings-header"><br>Referrals<br></p>
+    <p class="paragraph_privacy1"><span class="text_myaccount">
+      <span style="font-size:16px; line-height: 35px;" class="bold-text">Give someone a <span class="bold-text" style="text-decoration: underline;">25% discount</span> on their first month. When they subscribe, get $5 in credit to be automatically applied!</span><br>
+      Referral Credit: $<?php echo get_referral_credit(get_current_user_id())?><br>
+      Referred Users: <?php echo get_paid_referred_users_count(get_current_user_id());?><br>
+      <!-- Registration Link -->
+      Registration Link: <input id="registration_link_input" class="mini-text-field" readonly value="<?php $registration_link = site_url('register/?ref=' . get_referral_id(get_current_user_id())); echo $registration_link; ?>"></span></p>
+      <div id="registration_link_text" style="display:none; height:auto; width:auto; white-space: nowrap; padding: 2px 8px; font-size: 14px; border-radius: 50px; line-height: 1.4;"><?php echo $registration_link; ?></div>
+      <!-- Purchase Link -->
+      <p class="paragraph_privacy1"><span class="text_myaccount">
+      Purchase Link: <input id="purchase_link_input" class="mini-text-field" readonly value="<?php $purchase_link = site_url('pricing/?ref=' . get_referral_id(get_current_user_id())); echo $purchase_link; ?>"></span></p>
+      <div id="purchase_link_text" style="display:none; height:auto; width:auto; white-space: nowrap; padding: 2px 8px; font-size: 14px; border-radius: 50px; line-height: 1.4;"><?php echo $purchase_link; ?></div>
+    
+    <!-- CHANGE PASSWORD -->
+    <p class="paragraph_privacy1 settings-header"><br>Change Password<br></p>
     <div class="w-form">
       <form id="reset-pass" name="reset-pass" class="form-2" action="<?php echo site_url('account'); ?>" method="post">
         <input type="password" class="text-field-2 w-input" maxlength="256" name="current_password" data-name="Current Password" placeholder="Current Password" id="Current-Password" required="">
@@ -97,14 +112,21 @@
         <input class="change_myaccount w-button" type="submit" value="Change Password">
       </form>
       </div>
+    </div>
     <?php else: 
       get_template_part('parts/login/not-logged-in-error'); 
     endif; ?>
   <script>
+    //set widths for inputs to wrap text
+    var registration_link_width = $('#registration_link_text').innerWidth();
+    var purchase_link_width = $('#purchase_link_text').innerWidth();
+    $('#registration_link_input').width(registration_link_width);
+    $('#purchase_link_input').width(purchase_link_width);
+
     function cancel_subscription_click() {
       $('#initial_cancel_button').fadeOut(400, function() {
-      $('#confirm_cancel').fadeIn(600);
-    });
+        $('#confirm_cancel').fadeIn(600);
+      });
     }
   </script>
   <?php get_footer(); ?>

@@ -31,12 +31,36 @@ function three_day_email($id, $time = 0) {
 function charge_subscription($id) {
     $user_meta = get_user_meta($id);
 
-    switch($user_meta['subscription_type']) {
+    switch($user_meta['subscription_type'][0]) {
         case 'classic':
             if(stored_payment_method($id) == 'card') {
-            $amount = '20.00';
-            if(isset($user_meta['monthly_amount'])) $amount = $user_meta['monthly_amount'];
-            if(firstTwoMonths() && $user_meta['discount'] == 'true') $amount = '15.00';
+            $amount = get_monthly_amount($id);
+            $product_code = '099102';
+            $description = 'Classic Subscription (1 Month)';
+            if(firstTwoMonths() && $user_meta['discount'][0] == 'true') { 
+                $amount = '15.00';
+                $product_code = '099100';
+                $description = 'Discounted Classic Subscription (1 Month)';
+            }
+
+            //referral credit (if credit is greater than cost, it is handled in subscription-refresher.php)
+            $referral_credit = get_referral_credit($id);
+            if($referral_credit > 0) {
+                $amount -= $referral_credit;
+                $amount = number_format($amount, 2);
+                switch($amount) {
+                    case '5.00':
+                    $product_code = '099103';
+                    break;
+                    case '10.00':
+                    $product_code = '099104';
+                    break;
+                    case '15.00':
+                    $product_code = '099100';
+                    break;
+                }
+                $description = 'Discounted Classic Subscription (1 Month)';
+            }
 
             $discount_amount = number_format(20.0 - $amount, 2);
             $discount_indicator = '0';
@@ -49,14 +73,14 @@ function charge_subscription($id) {
               'gateway_id' => PAYEEZY_GATEWAY_ID,
               'password' => PAYEEZY_API_PASSWORD,
               'transaction_type' => '00', //purchase
-              'transarmor_token' => $user_meta['token'],
-              'cardholder_name' => $user_meta['cardholder_name'],
+              'transarmor_token' => $user_meta['token'][0],
+              'cardholder_name' => $user_meta['cardholder_name'][0],
               'amount' => $amount,
-              'credit_card_type' => $user_meta['card_type'],
-              'cc_expiry' => $user_meta['expiry_date'],
+              'credit_card_type' => $user_meta['card_type'][0],
+              'cc_expiry' => $user_meta['expiry_date'][0],
               'reference_no' => $reference_no,
               'customer_ref' =>  $reference_no, // x_po_num
-              'reference_3' => $user_meta['discord_id'], //discord_id
+              'reference_3' => $user_meta['discord_id'][0], //discord_id
               'client_email' => get_user_by('id', $id)->data->user_email,
               'partial_redemption' => 'false', //no partial redemption
               'ecommerce_flag' => '2', // MOTO recurring payments
@@ -68,12 +92,12 @@ function charge_subscription($id) {
                 'line_items' => array(
                     array(
                         'commodity_code' => '91528',
-                        'description' => 'Classic Subscription (1 Month)',
+                        'description' => $description,
                         'discount_amount' => $discount_amount,
                         'discount_indicator' => $discount_indicator,
                         'gross_net_indicator' => '1', //tax included
                         'line_item_total' => $amount,
-                        'product_code' => '099102', //product code
+                        'product_code' => $product_code, //product code
                         'quantity' => '1',
                         'unit_cost' => $amount,
                         'unit_of_measure' => 'EA',
@@ -122,6 +146,7 @@ function charge_subscription($id) {
 
             $response = json_decode(curl_exec($ch));
             curl_close($ch);
+            var_dump($response);
 
             //add to user meta
             add_transaction($id, get_var_dump($response));
@@ -129,15 +154,21 @@ function charge_subscription($id) {
             $links_html = '<p style="color:#898989; text-align:center;"><a style="color:#898989;" href="' . site_url('privacy-policy') . '">PRIVACY POLICY</a> | <a style="color:#898989;" href="' . site_url('terms') . '">TERMS</a>';
 
             //transaction successful?
-            if($response['transaction_error'] == 0 && $response['transaction_approved'] == 1) {
+            if($response->transaction_error == 0 && $response->transaction_approved == 1) {
+
+                //remove referral credit
+                add_referral_credit($id, -1 * $referral_credit);
 
                 //cancel subscription button
                 $links_html .= ' | <a style="color:#898989;" href="' . site_url('account') . '">UNSUBSCRIBE</a></p>';
 
+                $referral_credit_str = '. ';
+                if($referral_credit > 0) $referral_credit_str = ' (discounted due to referral credit).<br>Your previous referral credit: <strong>$' . $referral_credit . '</strong><br>Your new referral credit: <strong>$0.00</strong><br>';
                 //send email for success
-                send_email(get_user_email($id), 'Thank you! Your subscription was renewed automatically.', '<p style="text-align:center;">Your subscription with us has been automatically renewed. Here is your official receipt:</p>' . 
-                    format_ctr($response['ctr']) . 
+                send_email(get_user_email($id), 'Thank you! Your subscription was renewed automatically.', '<p style="text-align:center;">Your subscription with us has been automatically renewed' . $referral_credit_str . 'Here is your official receipt:</p>' . 
+                    format_ctr($response->ctr) . 
                     $links_html);
+
                 return strtotime('+1 month');
             }
             
@@ -145,7 +176,7 @@ function charge_subscription($id) {
             //send email for error
             $links_html .= '</p>';
             send_email(get_user_email($id), 'There was an error renewing your subscription.', '<p style="text-align:center;">There was an error processing the transaction to renew your subscription. Here is your official receipt:</p>' . 
-                format_ctr($response['ctr']) . 
+                format_ctr($response->ctr) . 
                 '<p style="text-align:center;"><a href="' . site_url('pricing') . '">Renew your subscription?</a></p>' .
                 $links_html);
             }
@@ -281,6 +312,107 @@ function tokenize($card_number, $cardholder_name, $expiry) {
             return $response->transarmor_token;
 } 
 
+//=====================REFERRAL====================
+
+function get_forms_amount($id) {
+    //returns '20.00' if user does not exist
+    $amount = get_next_amount($id);
+    $referral_credit = get_referral_credit($id);
+    if($referral_credit > 0) {
+      if($referral_credit > $amount) $referral_credit = $amount;
+      $amount -= $referral_credit;
+      $amount = number_format($amount, 2);
+    }
+    return $amount;
+}
+
+function add_referral_credit($id, $amount) {
+    if(get_userdata($id)) {
+        $credit = get_referral_credit($id);
+        update_user_meta($id, 'referral_credit', $credit + $amount);
+        return true;
+    }
+    return false;
+} 
+
+function get_referral_credit($id) {
+    $credit = get_user_meta($id, 'referral_credit', true);
+    if($credit) return number_format($credit, 2);
+    return '0.00';
+}
+
+function get_paid_referred_users_count($id) {
+    $arr = get_user_meta($id, 'referred_paid', true);
+    if($arr) return count($arr);
+    return 0;
+}
+
+function get_referral_id($id) {
+    //multiply (id + 10000) by 21646753, then convert to base 36
+    return base_convert(bcmul($id + 10000, '21646753'), 10, 36);
+}
+
+function reverse_referral_id($ref_id) {
+    //convert to base 10, then divide by 2164753, then subtract 10000
+    $base10 = base_convert($ref_id, 36, 10);
+    if(bcmod($base10, '21646753') === '0') {
+        return bcsub(bcdiv(base_convert($ref_id, 36, 10), '21646753'), 10000);
+    }
+}
+
+function has_subscribed($id) {
+    if(get_user_meta($id, 'subscription_end_time', true) || get_user_meta($id, 'has_subscribed', true)) return true;
+    return false;
+}
+
+function get_referrer_id($id) {
+    return get_user_meta($id, 'ref_id', true);
+}
+
+function referred_first_time($id) {
+    if(get_referrer_id($id)) {
+        if(!has_subscribed($id)) return true;
+    }
+    return false;
+}
+
+function add_referred_user($ref_id, $id) {
+    $arr = get_user_meta($ref_id, 'referred', true);
+    if(!$arr) $arr = array();
+    array_push($arr, get_username($id) . ' (' . $id . ')');
+    update_user_meta($ref_id, 'referred', $arr);
+    update_user_meta($id, 'ref_id', $ref_id);
+}
+
+function add_referred_paid_user($ref_id, $id) {
+    $arr = get_user_meta($ref_id, 'referred_paid', true);
+    if(!$arr) $arr = array();
+    array_push($arr, get_username($id) . ' (' . $id . ')');
+    update_user_meta($ref_id, 'referred_paid', $arr);
+    update_user_meta($id, 'ref_id', $ref_id);
+}
+
+//USER FUNCTIONS
+function get_username($id) {
+    return get_user_by('id', $id)->data->display_name;
+}
+
+function get_monthly_amount($id) {
+    $amount = get_user_meta($id, 'monthly_amount', true);
+    if($amount) return $amount;
+    if(get_user_subscription($id) == 'classic') return DEFAULT_SUBSCRIPTION_AMOUNT;
+}
+
+//should be able to handle custom monthly amounts? (not currently used for that purpose)
+function get_next_amount($id) {
+    $amount = get_user_meta($id, 'monthly_amount', true);
+    if((get_user_meta($id, 'discount', true) == 'true' && firstTwoMonths()) || referred_first_time($id)) $amount = '15.00';
+    if($amount) return $amount;
+    return DEFAULT_SUBSCRIPTION_AMOUNT;
+}
+
+//=====================SUBSCRIPTION===================
+
 function get_user_email($id) {
     $email = get_user_meta($id, 'email', true);
     if($email) return $email;
@@ -289,7 +421,7 @@ function get_user_email($id) {
 
 function stored_payment_method($id) {
     $user_meta = get_user_meta($id);
-    if($user_meta['token'] && $user_meta['cardholder_name'] && $user_meta['monthly_amount'] && $user_meta['expiry_date'] && $user_meta['card_type']) return 'card';
+    if($user_meta['token'] && $user_meta['cardholder_name'] && $user_meta['expiry_date'] && $user_meta['card_type']) return 'card';
     if(strcasecmp($user_meta['card_type'], 'paypal') == 0) return 'paypal';
     return NULL;
 }
@@ -318,6 +450,10 @@ function has_subscription_expired($id, $time = 0) {
     return FALSE;
 }
 
+function user_canceled_subscription($id) {
+    return get_user_meta($id, 'subscription_active', true) === 'false';
+}
+
 function is_subscription_active($id) {
     if(get_user_meta($id, 'subscription_active', true) == 'true') return TRUE;
     return FALSE;
@@ -334,6 +470,7 @@ function add_transaction($id, $toAdd) {
         $trans_array = array();
     }
     array_push($trans_array, $toAdd);
+    array_push($trans_array, get_referral_credit($id));
     update_user_meta($id, 'transactions', $trans_array);
 }
 
@@ -341,6 +478,10 @@ function get_var_dump($var) {
     ob_start();
     var_dump($var);
     return ob_get_clean();
+}
+
+function get_discord_username($id) {
+    return get_discord_user($id)->username;
 }
 
 function get_discord_user($id) {
@@ -725,11 +866,16 @@ add_action( 'register_form', 'myplugin_register_form' );
 function myplugin_register_form() {
 
     $full_name = ( ! empty( $_POST['full_name'] ) ) ? sanitize_text_field( $_POST['full_name'] ) : '';
+    $ref_id = ( ! empty( $_POST['ref_id'] ) ) ? $_POST['ref_id'] : '';
         
         ?>
         <p>
-            <label for="full_name"><?php _e( 'Full Name', 'mydomain' ) ?><br />
-                <input type="text" name="full_name" id="full_name" class="input" value="<?php echo esc_attr(  $full_name  ); ?>" size="25" /></label>
+            <label for="full_name"><?php _e( 'Full Name', 'mydomain' ) ?><br>
+                <input type="text" name="full_name" id="full_name" class="input" value="<?php echo esc_attr(  $full_name  ); ?>" size="25"></label>
+        </p>
+        <p>
+            <label for="ref_id"><?php _e( 'Referrer Id', 'mydomain' ) ?><br>
+                <input type="text" name="ref_id" id="ref_id" class="input" value="<?php echo $ref_id; ?>" size="25"></label>
         </p>
         <?php
     }
@@ -756,6 +902,7 @@ function myplugin_register_form() {
 
         if($errors->get_error_code()) {
             $o_redirect_url = get_bloginfo('url') . '/register/?';
+            if(!empty($_POST['ref_id'])) $o_redirect_url .= 'ref=' . get_referral_id($_POST['ref_id']) . '&';
             $o_num = 0;
             foreach($errors->get_error_codes() as $o_code) {
                 if($o_num !== 0) $o_redirect_url .= '&';
@@ -775,6 +922,15 @@ function myplugin_register_form() {
         }
         if(!empty($_POST['pwd'])) {
             wp_set_password(sanitize_text_field($_POST['pwd']), $user_id);
+        }
+        if(!empty($_POST['ref_id'])) {
+            $ref_id = $_POST['ref_id'];
+            //make sure user didn't refer self (if they figure out equation to find referral id)
+            if($ref_id != $user_id) {
+                update_user_meta($user_id, 'ref_id', $ref_id);
+                //referred people
+                add_referred_user($ref_id, $user_id);
+            }
         }
         $redirect_url = site_url( 'login' );
         $redirect_url = add_query_arg( 'register', 'true', $redirect_url );

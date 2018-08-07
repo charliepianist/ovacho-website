@@ -6,12 +6,17 @@
 <!DOCTYPE html>
 <html data-wf-page="5aac99ecaf97838325230d58" data-wf-site="5a7fa1f338edac00018725fb">
 <?php get_header(); ?>
+<?php 
+//get referrer id
+$ref_id = '';
+if(isset($_GET) && $_GET['ref']) $ref_id = reverse_referral_id($_GET['ref']);
+?>
 
 <div id="1_2" class="_1_2">
 	<div class="_3_container w-container">
 		<div data-w-id="5b0fafd8-0e5a-c647-b1cd-319a5d4edf61" class="_2_sign-up-page-wrapper"><img src="<?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO.png" srcset="<?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO-p-500.png 500w, <?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO-p-800.png 800w, <?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO-p-1080.png 1080w, <?php bloginfo('stylesheet_directory');?>/images/Ovacho-Logo-4-TRANS-PNG-CROP-LOGO.png 1193w" sizes="100vw" data-w-id="5b0fafd8-0e5a-c647-b1cd-319a5d4edf62" class="_1_logo-rotate-log-in">
-      		<h1 class="_1_login-page-wrapper-heading">Create Account</h1>
-      		<p class="o-error-msg">
+      		<h1 class="_1_login-page-wrapper-heading" style="margin-bottom: 0.1em;">Create Account</h1>
+      		<p class="o-error-msg" style="margin-bottom:0em;">
       			<?php
 			$o_page = basename($_SERVER['REQUEST_URI']);
 			$o_has_error = false;
@@ -41,8 +46,13 @@
 			}
 			?>
       		</p>
-      		<?php 
-      			get_template_part('parts/login/register-form'); 
+      		<!-- REFERRER AND REGISTER FORM -->
+      		<?php if($ref_id) {
+      				echo '<p style="color:black; margin-top:0em;">Referred By: ' . get_username($ref_id) . '</p>';
+      			}else echo '<p></p>';
+
+      			//REGISTER FORM
+      			get_template_part('parts/login/register-form');
       		?>
   		</div>
 	</div>
