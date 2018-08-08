@@ -109,4 +109,13 @@ agreement.
       <h1 data-w-id="4598e7f8-8b2f-e384-e203-0df354e3866b" class="_1_subheader2">Media</h1>
       <p class="_1_subtitle2">Follow us on Social Media</p><a href="<?php echo FACEBOOK_URL; ?>" target="_blank" class="w-inline-block"><img src="<?php bloginfo('stylesheet_directory');?>/images/social-03-white.svg" class="_1_media-icon"></a><a href="<?php echo STOCKTWITS_URL; ?>" target="_blank" class="w-inline-block"><img src="<?php bloginfo('stylesheet_directory');?>/images/Untitled-4-Recovered.png" width="30" height="30" class="_1_media-icon"></a></div>
   </div>
+  <script>
+    /*function dump(obj) {
+      var out = '';
+      for (var i in obj) {
+          out += i + ": " + obj[i] + "\n";
+      }
+      alert(out);
+  }*/
+  </script>
 <?php get_footer(); ?>

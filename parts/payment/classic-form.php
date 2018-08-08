@@ -31,7 +31,8 @@
 		<p id="discord_help_link" style="text-align:center; margin-bottom: 0.5em; color: #f3f3f3; line-height: 15px; font-size: 13px;"><a href="#" class="white-link" onclick="discordHelpLinkClick();">How do I find my Discord ID?</a></p>
 		<p id="discord_help" style="display: none; text-align:center; margin-bottom: 0.5em; color: #f3f3f3; line-height: 15px; font-size: 13px;">You can find your Discord ID by sending the message !id anywhere in our discord.</p>
 		<p style="text-align:center; margin-bottom: 0.5em; color: #f3f3f3; line-height: 15px; font-size: 13px;">By clicking "Pay Now", you agree to our <a class="white-link" href="<?php echo site_url('terms'); ?>">Terms</a>.</p>
-		<p id="discord_id_error" style="display: none; text-align:center; margin-bottom: 0.5em; color: red; line-height: 15px; font-size: 13px;">Error: Your discord ID must be greater than 4 digits long.</p>
+		<p id="discord_id_validating" style="display: none; text-align:center; margin-bottom: 0.5em; line-height: 15px; font-size: 13px; color:red;">Validating Discord ID...</p>
+		<p id="discord_id_error" style="display: none; text-align:center; margin-bottom: 0.5em; color: red; line-height: 15px; font-size: 13px;">Invalid Discord ID.</p>
 
 		<input type="hidden" name="x_login" value="<?php echo PAYEEZY_LOGIN; ?>">
 		<input type="hidden" name="x_fp_sequence" value="<?php echo FP_SEQUENCE; ?>">

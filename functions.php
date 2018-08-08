@@ -485,6 +485,10 @@ function get_discord_username($id) {
 }
 
 function get_discord_user($id) {
+    return json_decode(get_discord_user_raw($id));
+}
+
+function get_discord_user_raw($id) {
 
     $discord_api_url = 'https://discordapp.com/api/users/' . $id;
     //Initiate cURL
@@ -501,11 +505,10 @@ function get_discord_user($id) {
      
     //Execute the request.
     $response = curl_exec($ch); 
-    $response_obj = json_decode($response);
-
-    return $response_obj;
 
     curl_close($ch);
+
+    return $response;
 }
 
 function identify_discord() {

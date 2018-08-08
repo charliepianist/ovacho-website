@@ -54,7 +54,7 @@ update_user_meta($cust_id, 'has_subscribed', 'true');
 add_discord_user($_POST['discord_id']);
 
 //add transaction
-add_transaction($user->id, 'Paid fully by referral credit ($' . $prev_referral_credit . ' to $' . $new_referral_credit . '), timestamp ' . time());
+add_transaction($cust_id, 'Paid fully by referral credit ($' . $prev_referral_credit . ' to $' . $new_referral_credit . '), timestamp ' . time());
 //email
 $links_html = '<p style="color:#898989; text-align:center;"><a style="color:#898989;" href="' . site_url('privacy-policy') . '">PRIVACY POLICY</a> | <a style="color:#898989;" href="' . site_url('terms') . '">TERMS</a> | <a style="color:#898989;" href="' . site_url('account') . '">UNSUBSCRIBE</a></p>';
 send_email(get_user_email($cust_id), 'Thank you for joining our subscription!', '<p>Thank you for joining us! You have been subscribed to our Classic Subscription using referral credit.<br><br>Your previous referral credit: <strong>$' . $prev_referral_credit . '</strong><br>Your new referral credit: <strong>$' . $new_referral_credit . '</strong></p><br>' . $links_html);
@@ -74,7 +74,8 @@ else: //USER HAS NOT PRESSED BUTTON
 			<p id="discord_help_link" style="text-align:center; margin-bottom: 0.5em; color: #f3f3f3; line-height: 15px; font-size: 13px;"><a href="#" class="white-link" onclick="discordHelpLinkClick();">How do I find my Discord ID?</a></p>
 			<p id="discord_help" style="display: none; text-align:center; margin-bottom: 0.5em; color: #f3f3f3; line-height: 15px; font-size: 13px;">You can find your Discord ID by sending the message !id anywhere in our discord.</p>
 			<p style="text-align:center; margin-bottom: 0.5em; color: #f3f3f3; line-height: 15px; font-size: 13px;">By clicking "Subscribe Now", you agree to our <a class="white-link" href="<?php echo site_url('terms'); ?>">Terms</a>.</p>
-			<p id="discord_id_error" style="display: none; text-align:center; margin-bottom: 0.5em; color: red; line-height: 15px; font-size: 13px;">Error: Your discord ID must be greater than 4 digits long.</p>
+			<p id="discord_id_validating" style="display: none; text-align:center; margin-bottom: 0.5em; line-height: 15px; font-size: 13px; color:red;">Validating Discord ID...</p>
+			<p id="discord_id_error" style="display: none; text-align:center; margin-bottom: 0.5em; color: red; line-height: 15px; font-size: 13px;">Invalid Discord ID.</p>
 		</form>
 		<button data-w-id="c5199c12-e32e-d2be-a248-cf82a26d0f7a" class="pricing_button w-button" id="submit_classic_form" style="margin-top:0px; width:100%;" onclick="subscribeNowClick();">Subscribe Now</button>
 		<p style="text-align:center; margin-bottom: 0.5em; margin-top:0.5em; color: #f3f3f3; line-height: 15px; font-size: 13px;"><a id="no_discord_link" href="#" class="white-link" onclick="noDiscordClick();">Don't use Discord?</a>
@@ -92,11 +93,21 @@ function discordHelpLinkClick() {
 	});
 }
 function payNowClick() {
-    if($('#discord_id').val().length < 5) {
-      $('#discord_id_error').fadeIn(600);
-    }else {
-      submitClassicForm();
-    }
+    $.get({
+      "url": "<?php echo site_url('proxy/?auth=' . PROXY_AUTH . '&action=get_discord_user&discord_id=')?>" + $('#discord_id').val(),
+      "dataType": "json",
+      "success": function(data) {
+        if(data.username === undefined && data.code !== undefined) {
+          $('#discord_id_validating').hide();
+          $('#discord_id_error').fadeIn(600);
+        }else submitForm();
+      },
+      "error": function(obj, str) {
+        alert('An error occurred validating your Discord ID: ' + str);
+      }
+    });
+    $('#discord_id_error').hide();
+    $('#discord_id_validating').show();
 }
   function noDiscordClick() {
     $('#no_discord_link').fadeOut(400, function() {

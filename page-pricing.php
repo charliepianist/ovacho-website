@@ -57,11 +57,21 @@ $amount = get_forms_amount(get_current_user_id());
 		});
 	}
 	function payNowClick() {
-    if($('#discord_id').val().length < 5) {
-      $('#discord_id_error').fadeIn(600);
-    }else {
-      submitClassicForm();
-    }
+    $.get({
+      "url": "<?php echo site_url('proxy/?auth=' . PROXY_AUTH . '&action=get_discord_user&discord_id=')?>" + $('#discord_id').val(),
+      "dataType": "json",
+      "success": function(data) {
+        if(data.username === undefined && data.code !== undefined) {
+          $('#discord_id_validating').hide();
+          $('#discord_id_error').fadeIn(600);
+        }else submitClassicForm();
+      },
+      "error": function(obj, str) {
+        alert('An error occurred validating your Discord ID: ' + str);
+      }
+    });
+    $('#discord_id_error').hide();
+    $('#discord_id_validating').show();
 	}
 	function discordHelpLinkClick() {
 		$('#discord_help_link').fadeOut(400, function() {
