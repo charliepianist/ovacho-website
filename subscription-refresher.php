@@ -2,17 +2,25 @@
 <?php
 update_user_meta(1, 'last_cron', date('m/d/y G:i:s T'));
 
+//make sure stats directory exists
+if(!file_exists('stats')) mkdir('stats');
+
 //user count
 $users = get_users();
-$file = 'user_count.txt';
-if(file_exists($file)) {
-	$lines = file($file);
+$file_uc = 'stats/users.txt';
+if(file_exists($file_uc)) {
+	$lines = file($file_uc);
 	$line = $lines[count($lines) - 1];
-	if(strpos($line, date('m/d/y')) === false || !$line) file_put_contents($file, date('m/d/y') . "     " . count($users) . "\r\n", FILE_APPEND);
-}else file_put_contents($file, date('m/d/y') . "     " . count($users) . "\r\n");
+	if(strpos($line, date('m/d/y')) === false || !$line) file_put_contents($file_uc, date('m/d/y') . "," . count($users) . "\r\n", FILE_APPEND);
+}else file_put_contents($file_uc, date('m/d/y') . "," . count($users) . "\r\n");
 
-
-update_user_meta(1, 'temp', $line);
+//subscriber count
+$file_sc = 'stats/subscribers.txt';
+if(file_exists($file_sc)) {
+	$lines = file($file_sc);
+	$line = $lines[count($lines) - 1];
+	if(strpos($line, date('m/d/y')) === false || !$line) file_put_contents($file_sc, date('m/d/y') . "," . get_subscriber_count() . "," . get_real_subscriber_count() . "\r\n", FILE_APPEND);
+}else file_put_contents($file_sc, date('m/d/y') . "," . get_subscriber_count() . "," . get_real_subscriber_count() . "\r\n", FILE_APPEND);
 
 $time = time();
 foreach($users as $user) {

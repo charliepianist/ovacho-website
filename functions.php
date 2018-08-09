@@ -413,6 +413,32 @@ function get_next_amount($id) {
 
 //=====================SUBSCRIPTION===================
 
+function get_real_subscriber_count() {
+    $users = get_users();
+    $count = 0;
+    foreach($users as $user) {
+        if(get_user_subscription($user->id) === 'classic' && get_user_meta($user->id, 'transactions', true)) {
+            $count++;
+        }
+    }
+    return $count;
+}
+
+function get_subscriber_count() {
+    $users = get_users();
+    $count = 0;
+    foreach($users as $user) {
+        if(get_user_subscription($user->id) === 'classic') {
+            $count++;
+        }
+    }
+    return $count;
+}
+
+function get_user_count() {
+    return count(get_users());
+}
+
 function get_user_email($id) {
     $email = get_user_meta($id, 'email', true);
     if($email) return $email;
