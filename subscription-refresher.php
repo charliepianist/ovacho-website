@@ -19,8 +19,8 @@ $file_sc = 'stats/subscribers.txt';
 if(file_exists($file_sc)) {
 	$lines = file($file_sc);
 	$line = $lines[count($lines) - 1];
-	if(strpos($line, date('m/d/y')) === false || !$line) file_put_contents($file_sc, date('m/d/y') . "," . get_subscriber_count() . "," . get_real_subscriber_count() . "\r\n", FILE_APPEND);
-}else file_put_contents($file_sc, date('m/d/y') . "," . get_subscriber_count() . "," . get_real_subscriber_count() . "\r\n", FILE_APPEND);
+	if(strpos($line, date('m/d/y')) === false || !$line) file_put_contents($file_sc, date('m/d/y') . "," . get_subscriber_count() . "," . get_real_subscriber_count() . "," . get_active_subscriber_count() . "\r\n", FILE_APPEND);
+}else file_put_contents($file_sc, date('m/d/y') . "," . get_subscriber_count() . "," . get_real_subscriber_count() . "," . get_active_subscriber_count() . "\r\n", FILE_APPEND);
 
 $time = time();
 foreach($users as $user) {

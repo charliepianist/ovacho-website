@@ -413,6 +413,17 @@ function get_next_amount($id) {
 
 //=====================SUBSCRIPTION===================
 
+function get_active_subscriber_count() {
+    $users = get_users();
+    $count = 0;
+    foreach($users as $user) {
+        if(get_user_subscription($user->id) === 'classic' && get_user_meta($user->id, 'subscription_active', true) === 'true') {
+            $count++;
+        }
+    }
+    return $count;
+}
+
 function get_real_subscriber_count() {
     $users = get_users();
     $count = 0;
