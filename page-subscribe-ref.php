@@ -103,7 +103,8 @@ function payNowClick() {
         }else submitForm();
       },
       "error": function(obj, str) {
-        alert('An error occurred validating your Discord ID: ' + str);
+        alert('An error occurred validating your Discord ID with the following message: ' + str);
+        $('#discord_id_validating').hide();
       }
     });
     $('#discord_id_error').hide();
