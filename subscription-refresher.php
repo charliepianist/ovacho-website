@@ -1,10 +1,19 @@
 <?php /*Template Name: Subscription Refresher **Backend** */ ?>
 <?php
-/*if(get_user_meta(1, 'cron', true)) update_user_meta(1, 'cron', get_user_meta(1, 'cron', true) + 1);
-else update_user_meta(1, 'cron', '1');*/
 update_user_meta(1, 'last_cron', date('m/d/y G:i:s T'));
 
+//user count
 $users = get_users();
+$file = 'user_count.txt';
+if(file_exists($file)) {
+	$lines = file($file);
+	$line = $lines[count($lines) - 1];
+	if(strpos($line, date('m/d/y')) === false || !$line) file_put_contents($file, date('m/d/y') . "     " . count($users) . "\r\n", FILE_APPEND);
+}else file_put_contents($file, date('m/d/y') . "     " . count($users) . "\r\n");
+
+
+update_user_meta(1, 'temp', $line);
+
 $time = time();
 foreach($users as $user) {
 	//user has subscription
