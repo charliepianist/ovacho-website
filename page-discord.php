@@ -10,8 +10,8 @@
     	<p>We hope that our products spark conversations and build a community of traders and enthusiasts.<br></p>
     	<p style="text-align:center; width:100%; line-height:26px;">
     		<iframe src="https://discordapp.com/widget?id=409179607665999872&theme=dark" width="350" height="425" allowtransparency="true" frameborder="0" id="discord_widget"></iframe>
-    		<span style="position:absolute; bottom:24px;"><span style="font-size:70px; color:#100f1b;">🠬</span>Click&nbsp;"Connect"&nbsp;to&nbsp;join&nbsp;our&nbsp;server!</span>
-    		<span style="position:absolute; font-size:70px; bottom:23px; color:#2bb2a9;">🠬</span></p>
+    		<span style="position:absolute; bottom:23px;"><span style="font-size:70px; color:#100f1b;">🠬</span><strong>Click&nbsp;"Connect"&nbsp;to&nbsp;join&nbsp;our&nbsp;server!</strong></span>
+    		<span style="position:absolute; font-size:70px; bottom:22px; color:#2bb2a9;"><strong>🠬</strong></span></p>
     </div>
   </div>
 <?php get_footer(); ?>
