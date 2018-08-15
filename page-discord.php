@@ -4,11 +4,14 @@
 <html data-wf-page="5acbc4be54d3f49c91869741" data-wf-site="5a7fa1f338edac00018725fb">
 <?php get_header(); ?>
 
-  <div class="_3_container w-container" style="padding-bottom:2em;">
+  <div class="_3_container w-container" style="padding-bottom:4em;">
     <h1 class="heading">Discord Group</h1>
-    <div class="paragraph_privacy1" style="margin-bottom:0em; display:inline-block;">
+    <div class="paragraph_privacy1" style="margin-bottom:0em; display:inline-block; position:relative;">
     	<p>We hope that our products spark conversations and build a community of traders and enthusiasts.<br></p>
-    	<p style="text-align:center; width:100%;"><iframe src="https://discordapp.com/widget?id=409179607665999872&theme=dark" width="350" height="425" allowtransparency="true" frameborder="0" id="discord_widget"></iframe></p>
+    	<p style="text-align:center; width:100%; line-height:26px;">
+    		<iframe src="https://discordapp.com/widget?id=409179607665999872&theme=dark" width="350" height="425" allowtransparency="true" frameborder="0" id="discord_widget"></iframe>
+    		<span style="position:absolute; bottom:24px;"><span style="font-size:70px; color:#100f1b;">🠬</span>Click&nbsp;"Connect"&nbsp;to&nbsp;join&nbsp;our&nbsp;server!</span>
+    		<span style="position:absolute; font-size:70px; bottom:23px; color:#2bb2a9;">🠬</span></p>
     </div>
   </div>
 <?php get_footer(); ?>
