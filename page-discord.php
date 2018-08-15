@@ -3,8 +3,12 @@
 <!DOCTYPE html>
 <html data-wf-page="5acbc4be54d3f49c91869741" data-wf-site="5a7fa1f338edac00018725fb">
 <?php get_header(); ?>
-  <div class="_3_container w-container">
+
+  <div class="_3_container w-container" style="padding-bottom:2em;">
     <h1 class="heading">Discord Group</h1>
-    <p class="paragraph_privacy1">We hope that our products spark conversations and build a community of traders and enthusiasts.<span class="text-span-3"><br></span></p><a href="<?php echo DISCORD_URL; ?>" data-w-id="4ebf864f-b577-a141-75ce-b525686242dc" class="_3_wlr-archive w-button">Discord Group</a><img src="<?php bloginfo('stylesheet_directory');?>/images/IMG_5728_iphone7plusrosegold_portrait.png" width="500" height="500" srcset="<?php bloginfo('stylesheet_directory');?>/images/IMG_5728_iphone7plusrosegold_portrait-p-500.png 500w, <?php bloginfo('stylesheet_directory');?>/images/IMG_5728_iphone7plusrosegold_portrait-p-800.png 800w, images/IMG_5728_iphone7plusrosegold_portrait-p-1080.png 1080w, <?php bloginfo('stylesheet_directory');?>/images/IMG_5728_iphone7plusrosegold_portrait-p-1600.png 1600w, <?php bloginfo('stylesheet_directory');?>/images/IMG_5728_iphone7plusrosegold_portrait.png 2000w" sizes="(max-width: 479px) 53vw, (max-width: 767px) 55vw, 500px" class="image-5"></div>
+    <div class="paragraph_privacy1" style="margin-bottom:0em; display:inline-block;">
+    	<p>We hope that our products spark conversations and build a community of traders and enthusiasts.<br></p>
+    	<p style="text-align:center; width:100%;"><iframe src="https://discordapp.com/widget?id=409179607665999872&theme=dark" width="350" height="425" allowtransparency="true" frameborder="0" id="discord_widget"></iframe></p>
+    </div>
   </div>
 <?php get_footer(); ?>

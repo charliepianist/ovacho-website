@@ -64,23 +64,32 @@
 
         //whether subscription is active
         echo '<br>';
-        if(is_subscription_active(get_current_user_id())) echo 'Automatic Renewal: Active';
+        if(is_subscription_active(get_current_user_id())) echo 'Automatic Renewal: Active - ' . nice_stored_payment_method(get_current_user_id());
         else echo 'Automatic Renewal: <span style="color:red;">Inactive</span>';
       }
         ?></span></p>
         <?php $user_id = get_current_user_id(); 
         if(get_user_subscription($user_id) !== 'basic'): //check if user has subscription
           if(is_subscription_active($user_id)): //ACTIVE?>
-          <a href="#" id="initial_cancel_button" data-w-id="6413a6ba-b27b-e4d2-f56c-bd4746d05e73" class="change_myaccount w-button" onclick="cancel_subscription_click();">Cancel Subscription</a>
-          <form id="confirm_cancel" method="post" action="<?php echo site_url('account'); ?>" style="display:none; padding-top:0.2em; ">
-            <p class="paragraph_privacy1"><span class="text_myaccount"> Enter your password to confirm: </span></p>
-            <input type="password" class="text-field-2 w-input" maxlength="256" name="cancel_sub_password" data-name="Current Password" placeholder="Current Password" id="cancel_sub_password" required="">
-            <input type="hidden" name="cancel_sub" value="true">
-
-            <input type="submit" value="Cancel Subscription"class="change_myaccount w-button">
+          <!--Confirm Password Cancel Card Form-->
+          <?php if(stored_payment_method(get_current_user_id()) === 'card'):?>
+            <a href="#" id="initial_cancel_button" data-w-id="6413a6ba-b27b-e4d2-f56c-bd4746d05e73" class="change_myaccount w-button" onclick="cancel_subscription_click();">Cancel Subscription</a>
+            <form id="confirm_cancel" method="post" action="<?php echo site_url('account'); ?>" style="display:none; padding-top:0.2em; ">
+              <p class="paragraph_privacy1"><span class="text_myaccount"> Enter your password to confirm: </span></p>
+              <input type="password" class="text-field-2 w-input" maxlength="256" name="cancel_sub_password" data-name="Current Password" placeholder="Current Password" id="cancel_sub_password" required="">
+              <input type="hidden" name="cancel_sub" value="true">
+              <input type="submit" value="Cancel Subscription"class="change_myaccount w-button">
           </form><br><br>
+          <?php endif; ?>
+          <!--End Confirm Pass Cancel Card Form-->
+          <!--Cancel PayPal Button-->
+          <?php if(stored_payment_method(get_current_user_id()) === 'paypal'): ?>
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=82GTXR7CG35M8" id="paypal_cancel_button" data-w-id="6413a6ba-b27b-e4d2-f56c-bd4746d05e73" class="change_myaccount w-button">Cancel Subscription</a><br><br>
+          <?php endif; ?>
+          <!--End Cancel PayPal Button-->
+
           <?php else: //USER CANCELED SUBSCRIPTION BUT CURRENT PERIOD STILL ACTIVE
-            if(stored_payment_method(get_current_user_id())): //CHECK IF USER HAS PAYMENT METHOD?>
+            if(stored_payment_method(get_current_user_id()) === 'card'): //CHECK IF USER HAS CARD PAYMENT METHOD?>
               <form method="post" action="<?php echo site_url('account'); ?>">
                 <input type="hidden" name="renew_sub" value="true">
                 <input type="submit" value="Renew Subscription (<?php echo nice_stored_payment_method(get_current_user_id()); ?>)" class="change_myaccount w-button">
@@ -91,7 +100,7 @@
     <!-- REFERRAL LINK -->
     <p class="paragraph_privacy1 settings-header"><br>Referrals<br></p>
     <p class="paragraph_privacy1"><span class="text_myaccount">
-      <span style="font-size:16px; line-height: 35px;" class="bold-text">Give someone a <span class="bold-text" style="text-decoration: underline;">25% discount</span> on their first month. When they subscribe, get $5 in credit to be automatically applied!</span><br>
+      <span style="font-size:16px; line-height: 20px;" class="bold-text">Give someone a <span class="bold-text" style="text-decoration: underline;">25% discount</span> on their first month. When they subscribe, get $5 in credit to be automatically applied! (Credit/Debit)</span><br>
       Referral Credit: $<?php echo get_referral_credit(get_current_user_id())?><br>
       Referred Users: <?php echo get_paid_referred_users_count(get_current_user_id());?><br>
       <!-- Registration Link -->

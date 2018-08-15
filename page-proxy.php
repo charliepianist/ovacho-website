@@ -7,6 +7,6 @@ if($_GET['auth'] === PROXY_AUTH) {
 		echo get_discord_user_raw($_GET['discord_id']);
 		break;
 	}
-}
+}else include('404.php');
 
 ?>

@@ -151,34 +151,28 @@ function charge_subscription($id) {
             //add to user meta
             add_transaction($id, get_var_dump($response));
 
-            $links_html = '<p style="color:#898989; text-align:center;"><a style="color:#898989;" href="' . site_url('privacy-policy') . '">PRIVACY POLICY</a> | <a style="color:#898989;" href="' . site_url('terms') . '">TERMS</a>';
-
             //transaction successful?
             if($response->transaction_error == 0 && $response->transaction_approved == 1) {
 
                 //remove referral credit
                 add_referral_credit($id, -1 * $referral_credit);
 
-                //cancel subscription button
-                $links_html .= ' | <a style="color:#898989;" href="' . site_url('account') . '">UNSUBSCRIBE</a></p>';
-
                 $referral_credit_str = '. ';
                 if($referral_credit > 0) $referral_credit_str = ' (discounted due to referral credit).<br>Your previous referral credit: <strong>$' . $referral_credit . '</strong><br>Your new referral credit: <strong>$0.00</strong><br>';
                 //send email for success
                 send_email(get_user_email($id), 'Thank you! Your subscription was renewed automatically.', '<p style="text-align:center;">Your subscription with us has been automatically renewed' . $referral_credit_str . 'Here is your official receipt:</p>' . 
                     format_ctr($response->ctr) . 
-                    $links_html);
+                    EMAIL_LINKS_UNSUBSCRIBE_HTML);
 
                 return strtotime('+1 month');
             }
             
             //error in transaction
             //send email for error
-            $links_html .= '</p>';
             send_email(get_user_email($id), 'There was an error renewing your subscription.', '<p style="text-align:center;">There was an error processing the transaction to renew your subscription. Here is your official receipt:</p>' . 
                 format_ctr($response->ctr) . 
                 '<p style="text-align:center;"><a href="' . site_url('pricing') . '">Renew your subscription?</a></p>' .
-                $links_html);
+                EMAIL_LINKS_HTML);
             }
         break;
     }
@@ -392,6 +386,17 @@ function add_referred_paid_user($ref_id, $id) {
     update_user_meta($id, 'ref_id', $ref_id);
 }
 
+function new_referred_user_subscription($id) {
+    $ref_id = get_referrer_id($id);
+    $referral_credit = get_referral_credit($ref_id);
+    add_referral_credit($ref_id, 5);
+    $referral_credit += 5;
+
+    //email
+    send_email(get_user_email($ref_id), 'Thanks for referring a new user!.', '<p>Thank you for referring ' . get_username($id) . ' to us! You received $5.00 in referral credit (applied automatically to your next purchase or subscription renewal using credit/debit). You now have <strong>$' . number_format($referral_credit, 2) . '</strong> in referral credit.</p>' . EMAIL_LINKS_HTML);
+    add_referred_paid_user($ref_id, $id);
+}
+
 //USER FUNCTIONS
 function get_username($id) {
     return get_user_by('id', $id)->data->display_name;
@@ -412,6 +417,18 @@ function get_next_amount($id) {
 }
 
 //=====================SUBSCRIPTION===================
+
+function subscribe_user($id, $discord_id = 0, $paypal = false, $active = true, $type = 'classic', $time = 0) {
+    if($time === 0) $time = strtotime('+1 month');
+    update_user_meta($id, 'has_subscribed', 'true');
+    update_user_meta($id, 'subscription_type', $type);
+    update_user_meta($id, 'subscription_end_time', $time);
+    update_user_meta($id, 'discord_id', $discord_id);
+    if($discord_id !== 0) add_discord_user($discord_id);
+    if($paypal) update_user_meta($id, 'card_type', 'PayPal');
+    if($active) update_user_meta($id, 'subscription_active', 'true');
+    else update_user_meta($id, 'subscription_active', 'false');
+}
 
 function get_active_subscriber_count() {
     $users = get_users();
@@ -450,16 +467,17 @@ function get_user_count() {
     return count(get_users());
 }
 
-function get_user_email($id) {
+function get_user_email($id, $paypal = false) {
     $email = get_user_meta($id, 'email', true);
+    if($paypal) $email = get_user_meta($id, 'paypal_email', true);
     if($email) return $email;
     return get_user_by('id', $id)->data->user_email;
 }
 
 function stored_payment_method($id) {
     $user_meta = get_user_meta($id);
-    if($user_meta['token'] && $user_meta['cardholder_name'] && $user_meta['expiry_date'] && $user_meta['card_type']) return 'card';
-    if(strcasecmp($user_meta['card_type'], 'paypal') == 0) return 'paypal';
+    if(strcasecmp($user_meta['card_type'][0], 'paypal') == 0) return 'paypal';
+    if($user_meta['token'][0] && $user_meta['cardholder_name'][0] && $user_meta['expiry_date'][0] && $user_meta['card_type'][0]) return 'card';
     return NULL;
 }
 
@@ -468,6 +486,10 @@ function nice_stored_payment_method($id) {
         case 'card':
         $token = get_user_meta($id, 'token', true);
         return 'Card ending in ' . substr($token, -4);
+        break;
+        case 'paypal':
+        $email = get_user_meta($id, 'paypal_email', true);
+        return 'PayPal (' . $email . ')';
         break;
     }
     return 'N/A';
@@ -507,8 +529,21 @@ function add_transaction($id, $toAdd) {
         $trans_array = array();
     }
     array_push($trans_array, $toAdd);
+    //add_transaction called BEFORE referral credit is changed! (so the referral credit stored from this method is from before the transaction!)
     array_push($trans_array, get_referral_credit($id));
     update_user_meta($id, 'transactions', $trans_array);
+}
+
+//===================PayPal======================
+function update_paypal_transaction_status($id, $txn_id, $status) {
+    $arr = get_user_meta($id, 'paypal_transactions_status', true);
+    if(!$arr) $arr = array();
+    $arr[$txn_id] = $status;
+    update_user_meta($id, 'paypal_transactions_status', $arr);
+}
+
+function get_paypal_transaction_status($id, $txn_id) {
+    return get_user_meta($id, 'paypal_transactions_status', true)[$txn_id];
 }
 
 function get_var_dump($var) {
@@ -720,8 +755,8 @@ function get_the_content_with_formatting ($more_link_text = '(more...)', $stript
 //add_filter('the_content', 'o_filter_charts_analysis');
 function o_filter_charts_analysis($o_content = '', $o_permalink = '#') {
 	//separate into two images
-	$o_first_img_index = strpos($o_content, 'img class="');
-	$o_second_img_index = strpos($o_content, '<img class="', $o_first_img_index + 3);
+	$o_first_img_index = strpos($o_content, 'img src="');
+	$o_second_img_index = strpos($o_content, '<img src="', $o_first_img_index + 3);
 
 	//reformat first image
 	$o_first = substr($o_content, 0, $o_second_img_index);

@@ -203,9 +203,9 @@ if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
 				echo '<form method="post" action="' . site_url('user-dump') . '">Token: <input name="token" type="text"><br>Cardholder Name:<input name="cardholder_name" type="text"><br>Monthly Amount: <input type="text" name="monthly_amount"><br>Card Type: <input type="text" name="card_type"><br>Expiry Date: <input placeholder="Ex: 0421" name="expiry_date" type="text"><br><input type="hidden" name="auth" value="' . USER_DUMP_AUTH . '"><input type="hidden" name="user_id" value="' . $_GET['user_id'] .'"><input type="submit"></form>';
 				break;
 
-				case 'discord_username':
-				if(isset($_GET) && isset($_GET['discord_id'])) echo 'ID: ' . $_GET['discord_id'] . '<br>' . 'Username: ' . get_discord_username($_GET['discord_id']) . '<br><br>';
-				echo '<form method="get" action="' . site_url('user-dump') . '">Discord ID: <input name="discord_id" type="text"><input name="action" type="hidden" value="discord_username"><input type="submit"></form>';
+				case 'discord_user':
+				if(isset($_GET) && isset($_GET['discord_id'])) echo 'ID: ' . $_GET['discord_id'] . '<br>' . 'Username: ' . get_discord_username($_GET['discord_id']) . '<br><br>' . get_var_dump(get_discord_user($_GET['discord_id'])) . '<br><br>';
+				echo '<form method="get" action="' . site_url('user-dump') . '">Discord ID: <input name="discord_id" type="text"><input name="action" type="hidden" value="discord_user"><input type="submit"></form>';
 				break;
 
 				case 'get_meta':
