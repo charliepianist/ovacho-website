@@ -26,7 +26,7 @@ $amount = get_forms_amount(get_current_user_id());
         <h1 class="_3_chartname">Basic</h1>
         <p class="pricing"><span class="text-span-7">Watchlist/Recap<br></span>• Daily 4 Stock Watchlist<br><br><span><strong class="bold-text">Charts/Analysis</strong></span><br>• 3 - 10 Technical Stock Charts/Week<br>• 2 - 3 Stock Analyses/Week<br>‍<br><span class="text-span-9">Discord</span><br>• Access To Basic Chatrooms<br>• Limited Access To Stock Bots<br>‍• 1 - 5 Free Intra-Day Alerts<br><br><span class="text-span-10">Resources</span><br>• Access To YouTube Videos<br>• Access To Articles &amp; Guides<br>• Access To Blog &amp; Newsletters<br>• Access To Analyst Team<br>‍<br><br><br><br>‍<span class="text-span-3"><br></span></p><a href="#" data-w-id="16be0b84-1d1b-74e4-3c3d-a909d7d29609" class="pricing_button w-button">FREE</a></div>
       <div class="w-col w-col-4">
-        <h1 class="_3_chartname">Classic [<span class="text-limited-time text-span-16">Limited Time</span>]</h1>
+        <h1 class="_3_chartname">Classic</h1>
         <p class="pricing"><span class="text-span-7">Watchlist/Recap<br></span>• Daily 16 Stock Watchlist<br>• Daily 16 Stock Recap<br>• Special Watchlists<br>‍&emsp;• Large-Cap<br>‍&emsp;• Options<br><br><span><strong class="bold-text">Charts/Analysis</strong></span><br>• 5 - 25+  Technical Stock Charts/Week<br>• 3 - 12+ Stock Analyses/Week<br>• Request Tickers For Analyses<br>‍<br><span class="text-span-9">Discord</span><br>• Full Access To Discord Chatrooms<br>• Intra-Day Alerts<br>• Full Access To Stock Bots<br>‍<br><span class="text-span-10">Resources</span><br>• Access To YouTube Videos<br>• Access To Articles &amp; Guides<br>• Access To Blog &amp; Newsletters<br>• Priority Access To Analyst Team <br>
         </p><a href="#" data-w-id="c5199c12-e32e-d2be-a248-cf82a26d0f7a" class="pricing_button w-button" onclick="classicClick();" id="classic_button"><?php if((get_user_meta(get_current_user_id(), 'discount', true) == 'true' && firstTwoMonths()) || referred_first_time(get_current_user_id())) echo '$15 for first month, then $20/month (Credit/Debit)'; else echo '$20/month'?></a>
         
@@ -41,9 +41,26 @@ $amount = get_forms_amount(get_current_user_id());
         }else echo '<p class="pricing to_fade_in" style="display:none;">You must <a style="color: #fff;" href="' . site_url('login/?redirect=') . urlencode(site_url() . $_SERVER['REQUEST_URI']) . '">login</a> to purchase this subscription.</p>';
         ?>
       </div>
-      <!--<div class="w-col w-col-4">
-        <h1 class="_3_chartname">Premium [Coming Soon!]</h1>
-        <p class="pricing_plat" style="padding-bottom:1.3em;"><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br></p><a href="#" data-w-id="e7b1faab-8b5a-267d-3e32-46f78309180a" class="pricing_button w-button">TBD</a></div>-->
+      <div class="w-col w-col-4">
+        <h1 class="_3_chartname">Doji Yogi (a.k.a. LuckyLou)</h1>
+        <p class="pricing" style="padding-bottom:1.3em;">
+          <span class="text-span-7">About<br></span>
+          • Over 20 Years Of Investment Experience<br>
+          • Wall Street Working Experience<br>
+          • Experienced With Institutional Money<br>
+            &emsp;• Morgan Stanley<br>
+            &emsp;• Barclays<br>
+            &emsp;• Bank of Japan<br><br>
+          <span><strong class="bold-text">SPY Option Day Trades</strong></span><br>
+            &emsp;• High Volume, Low Risk<br><br>
+          <span class="text-span-9">Trending Stock Option Momentum Trades</span><br>
+            &emsp;• 1-3 Day Holds, Mid Risk<br><br>
+          <span class="text-span-10">ER Option Overnight Trades</span><br>
+            &emsp;• High Probability/Volatility, High Risk<br><br>
+          <span class="text-span-7">Discord</span><br>
+          • Please join our Discord server:<br>
+          &nbsp;&nbsp;<a href="<?php echo site_url('discord'); ?>" class="white-link" style=""><?php echo site_url('discord'); ?></a>
+        </p><a href="<?php echo DOJIYOGI_URL?>" data-w-id="e7b1faab-8b5a-267d-3e32-46f78309180a" class="pricing_button w-button">$25/week</a></div>
     </div>
   </div>
 <script src="<?php bloginfo('stylesheet_directory');?>/js/md5.min.js"></script>
