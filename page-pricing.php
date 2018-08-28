@@ -59,7 +59,7 @@ $amount = get_forms_amount(get_current_user_id());
           • High Probability/Volatility, High Risk<br><br>
           <span class="text-span-7">Discord</span><br>
           • Please join our Discord server:<br>
-          &nbsp;&nbsp;<a href="<?php echo site_url('discord'); ?>" class="white-link" style=""><?php echo site_url('discord'); ?></a>
+          &nbsp;&nbsp;<a href="<?php echo site_url('discord'); ?>" class="white-link" style=""><?php echo site_url('discord'); ?></a><br><span style="margin-bottom:17.5px; display:block;">&nbsp;</span>
         </p><a href="<?php echo DOJIYOGI_URL?>" data-w-id="e7b1faab-8b5a-267d-3e32-46f78309180a" class="pricing_button w-button">$25/week</a></div>
     </div>
   </div>

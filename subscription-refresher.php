@@ -101,6 +101,7 @@ foreach($users as $user) {
 						update_user_meta($user->id, 'three_day_email_sent', 'true');
 					}
 				}
+				if(has_subscription_expired($user->id, $time)) send_email('ovachoinvestments@gmail.com', 'PayPal User (' . $user->id . ')Subscription End', 'User ' . $user->id . 'subscription end.'); //temporary
 			break;
 		} //CLOSING BRACKET OF SWITCH STATEMENT
 	}//CLOSING BRACKET OF if subscription isn't basic

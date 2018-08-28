@@ -673,9 +673,9 @@ function create_dm_channel($id) {
 }
 
 //subscription_type user meta -> 'basic' or 'classic'
-function add_discord_user($id) {
+function add_discord_user($id, $role = '439322496253165568') {
 
-    $discord_api_url = 'https://discordapp.com/api/guilds/409179607665999872/members/' . $id . '/roles/439322496253165568';
+    $discord_api_url = 'https://discordapp.com/api/guilds/409179607665999872/members/' . $id . '/roles/' . $role;
     //Initiate cURL
     $ch = curl_init($discord_api_url);
      
@@ -696,6 +696,8 @@ function add_discord_user($id) {
     $response = curl_exec($ch);
 
     curl_close($ch);
+
+    return json_decode($response);
 }
 
 function remove_discord_user($id) {

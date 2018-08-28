@@ -77,7 +77,7 @@ else: //USER HAS NOT PRESSED BUTTON
 			<p id="discord_id_validating" style="display: none; text-align:center; margin-bottom: 0.5em; line-height: 15px; font-size: 13px; color:red;">Validating Discord ID...</p>
 			<p id="discord_id_error" style="display: none; text-align:center; margin-bottom: 0.5em; color: red; line-height: 15px; font-size: 13px;">Invalid Discord ID.</p>
 		</form>
-		<button data-w-id="c5199c12-e32e-d2be-a248-cf82a26d0f7a" class="pricing_button w-button" id="submit_classic_form" style="margin-top:0px; width:100%;" onclick="subscribeNowClick();">Subscribe Now</button>
+		<button data-w-id="c5199c12-e32e-d2be-a248-cf82a26d0f7a" class="pricing_button w-button" id="submit_classic_form" style="margin-top:0px; width:100%;" onclick="payNowClick();">Subscribe Now</button>
 		<p style="text-align:center; margin-bottom: 0.5em; margin-top:0.5em; color: #f3f3f3; line-height: 15px; font-size: 13px;"><a id="no_discord_link" href="#" class="white-link" onclick="noDiscordClick();">Don't use Discord?</a>
 		<button id="no_discord_submit" data-w-id="c5199c12-e32e-d2be-a248-cf82a26d0f7a" class="pricing_button w-button" style="display:none; margin-top:0.5em; width:100%;" onclick="subscribeWithoutDiscordClick();">Subscribe Now (without Discord)</button>
 	</div>
@@ -93,22 +93,25 @@ function discordHelpLinkClick() {
 	});
 }
 function payNowClick() {
-    $.get({
-      "url": "<?php echo site_url('proxy/?auth=' . PROXY_AUTH . '&action=get_discord_user&discord_id=')?>" + $('#discord_id').val(),
-      "dataType": "json",
-      "success": function(data) {
-        if(data.username === undefined && data.code !== undefined) {
-          $('#discord_id_validating').hide();
-          $('#discord_id_error').fadeIn(600);
-        }else submitForm();
-      },
-      "error": function(obj, str) {
-        alert('An error occurred validating your Discord ID with the following message: ' + str);
-        $('#discord_id_validating').hide();
-      }
-    });
-    $('#discord_id_error').hide();
-    $('#discord_id_validating').show();
+	if($('#discord_id').val() == '0') submitForm();
+	else {
+		$.get({
+	      "url": "<?php echo site_url('proxy/?auth=' . PROXY_AUTH . '&action=get_discord_user&discord_id=')?>" + $('#discord_id').val(),
+	      "dataType": "json",
+	      "success": function(data) {
+	        if(data.username === undefined && data.code !== undefined) {
+	          $('#discord_id_validating').hide();
+	          $('#discord_id_error').fadeIn(600);
+	        }else submitForm();
+	      },
+	      "error": function(obj, str) {
+	        alert('An error occurred validating your Discord ID with the following message: ' + str);
+	        $('#discord_id_validating').hide();
+	      }
+	    });
+	    $('#discord_id_error').hide();
+	    $('#discord_id_validating').show();
+	}
 }
   function noDiscordClick() {
     $('#no_discord_link').fadeOut(400, function() {
@@ -119,13 +122,6 @@ function payNowClick() {
     $('#discord_id').val('0');
     submitForm();
   }
-function subscribeNowClick() {
-    if($('#discord_id').val().length < 5) {
-      $('#discord_id_error').fadeIn(600);
-    }else {
-      submitForm();
-    }
-}
   function submitForm() {
     var date = new Date();
     var seconds = date.getTime() / 1000 - ((date.getTime() / 1000) % 1);

@@ -21,12 +21,22 @@ function orderby() {
 }
 
 if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
-	update_user_meta($_POST['user_id'], 'subscription_active', 'true');
-	update_user_meta($_POST['user_id'], 'token', $_POST['token']);
-	update_user_meta($_POST['user_id'], 'cardholder_name', $_POST['cardholder_name']);
-	update_user_meta($_POST['user_id'], 'monthly_amount', $_POST['monthly_amount']);
-	update_user_meta($_POST['user_id'], 'card_type', $_POST['card_type']);
-	update_user_meta($_POST['user_id'], 'expiry_date', $_POST['expiry_date']);
+	switch($_POST['type']) {
+		case 'payment':
+		update_user_meta($_POST['user_id'], 'subscription_active', 'true');
+		update_user_meta($_POST['user_id'], 'token', $_POST['token']);
+		update_user_meta($_POST['user_id'], 'cardholder_name', $_POST['cardholder_name']);
+		update_user_meta($_POST['user_id'], 'monthly_amount', $_POST['monthly_amount']);
+		update_user_meta($_POST['user_id'], 'card_type', $_POST['card_type']);
+		update_user_meta($_POST['user_id'], 'expiry_date', $_POST['expiry_date']);
+		break;
+		case 'json':
+		$json = json_decode(str_replace('\\', '', $_POST['json']));
+		var_dump($json);
+		echo '<br><br>';
+		update_user_meta($_POST['user_id'], $_POST['key'], $json);
+		break;
+	}
 	echo 'Success';
 }else if(current_user_can('administrator')) {
 	switch($_GET['user_id']) {
@@ -77,7 +87,7 @@ if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
 			));
 			$count = 0;
 			foreach($users as $user) {
-				if(get_user_subscription($user->id) !== 'basic' && get_user_meta($user->id, 'subscription_active', true) == 'true' && stored_payment_method($user->id) == 'card') {
+				if(get_user_subscription($user->id) !== 'basic' && get_user_meta($user->id, 'subscription_active', true) == 'true') {
 					$count++;
 					user_dump($user);
 					echo '<br><hr><br><br>';
@@ -194,13 +204,19 @@ if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
 				break;
 
 				case 'update_other':
-				update_user_meta($_GET['user_id'], $_GET['key'], $_GET['value']);
-				echo 'Success: <br>' . $_GET['key'] . ': ' . $_GET['value'];
+				if($_GET['key'] === 'json') {
+					echo get_user_by('id', $_GET['user_id'])->data->user_login . ' (' . $_GET['user_id'] . ', ' . get_user_meta($_GET['user_id'], 'first_name', true) . ')<br><br>';
+					echo '<form method="post" action="' . site_url('user-dump') . '">Key: <input name="key" type="text"><br>Json:<textarea style="width:300px; height:150px;" id="json_textarea"></textarea><input name="json" type="hidden" id="json_input"><br><input type="hidden" name="auth" value="' . USER_DUMP_AUTH . '"><input type="hidden" name="user_id" value="' . $_GET['user_id'] .'"><input type="submit" style="display:none;" id="json_submit"><input type="hidden" name="type" value="json"><button onclick="jsonClick();">Submit</button></form>';
+				}else {
+					update_user_meta($_GET['user_id'], $_GET['key'], $_GET['value']);
+					echo 'Success: <br>' . $_GET['key'] . ': ' . $_GET['value'];
+				}
+				
 				break;
 
 				case 'update_payment':
 				echo get_user_by('id', $_GET['user_id'])->data->user_login . ' (' . $_GET['user_id'] . ', ' . get_user_meta($_GET['user_id'], 'first_name', true) . ')<br><br>';
-				echo '<form method="post" action="' . site_url('user-dump') . '">Token: <input name="token" type="text"><br>Cardholder Name:<input name="cardholder_name" type="text"><br>Monthly Amount: <input type="text" name="monthly_amount"><br>Card Type: <input type="text" name="card_type"><br>Expiry Date: <input placeholder="Ex: 0421" name="expiry_date" type="text"><br><input type="hidden" name="auth" value="' . USER_DUMP_AUTH . '"><input type="hidden" name="user_id" value="' . $_GET['user_id'] .'"><input type="submit"></form>';
+				echo '<form method="post" action="' . site_url('user-dump') . '">Token: <input name="token" type="text"><br>Cardholder Name:<input name="cardholder_name" type="text"><br>Monthly Amount: <input type="text" name="monthly_amount"><br>Card Type: <input type="text" name="card_type"><br>Expiry Date: <input placeholder="Ex: 0421" name="expiry_date" type="text"><br><input type="hidden" name="auth" value="' . USER_DUMP_AUTH . '"><input type="hidden" name="type" value="payment"><input type="hidden" name="user_id" value="' . $_GET['user_id'] .'"><input type="submit"></form>';
 				break;
 
 				case 'discord_user':
@@ -223,3 +239,10 @@ if(isset($_POST) && $_POST['auth'] === USER_DUMP_AUTH) {
 ?>
 </pre>
 </div>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" type="text/javascript" intergrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script>
+	function jsonClick() {
+		$('#json_input').val($('#json_textarea').val());
+		$('#json_submit').click();
+	}
+</script>
