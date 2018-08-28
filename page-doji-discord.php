@@ -7,9 +7,9 @@
 
 		if(isset($_GET['discord_id'])) {
 			$response = add_discord_user($_GET['discord_id'], '480908124614819842');
-			if(isset($response['code'])) {
-				if($response['code'] === 10013) $error = 'Error: Invalid User ID';
-				else $error = 'Error Code ' . $response['code'];
+			if(isset($response->code)) {
+				if($response->code === 10013) $error = 'Error: Invalid User ID';
+				else $error = 'Error Code ' . $response->code;
 			}else {
 				$error = 'User ' . get_discord_user($_GET['discord_id'])->username . ' (' . $_GET['discord_id'] . ') added successfully.';
 			}
@@ -43,25 +43,22 @@ else get_template_part('parts/login/not-authorized-error');  //USER NOT AUTHORIZ
 <input style="display:none;" id="footer_class" value="_1_6">
 <script>
 function payNowClick() {
-	if($('#discord_id').val() == '0') submitForm();
-	else {
-		$.get({
-	      "url": "<?php echo site_url('proxy/?auth=' . PROXY_AUTH . '&action=get_discord_user&discord_id=')?>" + $('#discord_id').val(),
-	      "dataType": "json",
-	      "success": function(data) {
-	        if(data.username === undefined && data.code !== undefined) {
-	          $('#discord_id_validating').hide();
-	          $('#discord_id_error').fadeIn(600);
-	        }else submitForm();
-	      },
-	      "error": function(obj, str) {
-	        alert('An error occurred validating your Discord ID with the following message: ' + str);
+	$.get({
+	    "url": "<?php echo site_url('proxy/?auth=' . PROXY_AUTH . '&action=get_discord_user&discord_id=')?>" + $('#discord_id').val(),
+	    "dataType": "json",
+	    "success": function(data) {
+	      if(data.username === undefined && data.code !== undefined) {
 	        $('#discord_id_validating').hide();
-	      }
-	    });
-	    $('#discord_id_error').hide();
-	    $('#discord_id_validating').show();
-	}
+	        $('#discord_id_error').fadeIn(600);
+	      }else submitForm();
+	    },
+	    "error": function(obj, str) {
+	      alert('An error occurred validating your Discord ID with the following message: ' + str);
+	      $('#discord_id_validating').hide();
+	    }
+	  });
+	$('#discord_id_error').hide();
+	$('#discord_id_validating').show();
 }
   function submitForm() {
   	$('#submit_form').click();
