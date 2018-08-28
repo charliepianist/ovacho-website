@@ -55,15 +55,18 @@ curl_setopt($ch, CURLOPT_SSLVERSION, 6);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 curl_setopt($ch, CURLOPT_FORBID_REUSE, 1);
-curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array('Connection: Close', 'User-Agent: PHP-IPN-VerificationScript'));
-curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem');
+//curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem'); FILE DOES NOT CURRENTLY EXIST
 $paypal_response = curl_exec($ch);
 curl_close($ch);
 
 //
 //================Process Data as Appropriate================
 //
+
+//update_user_meta(1, 'temp2', get_var_dump($url) . ' ' . time());
+//update_user_meta(1, 'temp', get_var_dump($paypal_response === 'VERIFIED') . ',' . get_var_dump($_POST['receiver_email'] === PAYPAL_PRIMARY_EMAIL) . ',' . get_var_dump($_POST['test_ipn'] !== '1') . ',' . get_var_dump($_POST['item_name'] === 'Classic Subscription'));
+//update_user_meta(1, 'temp', get_var_dump($paypal_response));
 
 if($paypal_response === 'VERIFIED' && $_POST['receiver_email'] === PAYPAL_PRIMARY_EMAIL && $_POST['test_ipn'] !== '1' && $_POST['item_name'] === 'Classic Subscription') {
 	//store variables
