@@ -25,7 +25,7 @@
 	<div class="w-col w-col-13">
 		<p class="paragraph_privacy1" style="padding-left:10px; text-align:center; color:red"><?php if($error) echo $error;?></p>
 		<p class="paragraph_privacy1" style="padding-left:10px; padding-bottom:0.5em; text-align:center;">Discord ID of User:</p>
-		<form action="<?php echo site_url('doji-discord');?>" method="get" style="margin-bottom: 0px;">
+		<form method="get" style="margin-bottom: 0px;">
 			<input type="number" class="text-field w-input" maxlength="30" name="discord_id" placeholder="Discord ID (Ex: 239132435706761325)" id="discord_id" required style="margin-bottom: 0.5em; -webkit-appearance: none;">
 			<input type="submit" style="display:none;" id="submit_form">
 			<p id="discord_id_validating" style="display: none; text-align:center; margin-bottom: 0.5em; line-height: 15px; font-size: 13px; color:red;">Validating Discord ID...</p>
