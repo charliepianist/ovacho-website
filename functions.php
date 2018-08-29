@@ -424,7 +424,10 @@ function subscribe_user($id, $discord_id = 0, $paypal = false, $active = true, $
     update_user_meta($id, 'subscription_type', $type);
     update_user_meta($id, 'subscription_end_time', $time);
     update_user_meta($id, 'discord_id', $discord_id);
-    if($discord_id !== 0) add_discord_user($discord_id);
+    if($discord_id !== 0) {
+        add_discord_user($discord_id);
+        if($type === 'classic') append_discord_nickname($discord_id, DISCORD_NICK_SUFFIX);
+    }
     if($paypal) update_user_meta($id, 'card_type', 'PayPal');
     if($active) update_user_meta($id, 'subscription_active', 'true');
     else update_user_meta($id, 'subscription_active', 'false');
@@ -552,6 +555,39 @@ function get_var_dump($var) {
     return ob_get_clean();
 }
 
+function get_discord_guild_nickname($id, $guild = DISCORD_GUILD_ID) {
+    $guild_user = get_discord_guild_user($id, $guild);
+    if(isset($guild_user->nick)) return $guild_user->nick;
+    return $guild_user->user->username;
+}
+
+function get_discord_guild_user($id, $guild = DISCORD_GUILD_ID) {
+    return json_decode(get_discord_guild_user_raw($id, $guild));
+}
+
+function get_discord_guild_user_raw($id, $guild = DISCORD_GUILD_ID) {
+
+    $discord_api_url = 'https://discordapp.com/api/guilds/' . $guild . '/members/' . $id;
+    //Initiate cURL
+    $ch = curl_init($discord_api_url);
+     
+    //We want the result / output returned.
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+     
+    //Http headers
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'User-Agent: OvachoRoleManager (https://www.ovacho.com, 1)',
+        'Authorization: Bot ' . DISCORD_BOT_TOKEN,
+    ));
+     
+    //Execute the request.
+    $response = curl_exec($ch); 
+
+    curl_close($ch);
+
+    return $response;
+}
+
 function get_discord_username($id) {
     return get_discord_user($id)->username;
 }
@@ -675,7 +711,7 @@ function create_dm_channel($id) {
 //subscription_type user meta -> 'basic' or 'classic'
 function add_discord_user($id, $role = '439322496253165568') {
 
-    $discord_api_url = 'https://discordapp.com/api/guilds/409179607665999872/members/' . $id . '/roles/' . $role;
+    $discord_api_url = 'https://discordapp.com/api/guilds/' . DISCORD_GUILD_ID . '/members/' . $id . '/roles/' . $role;
     //Initiate cURL
     $ch = curl_init($discord_api_url);
      
@@ -700,8 +736,8 @@ function add_discord_user($id, $role = '439322496253165568') {
     return json_decode($response);
 }
 
-function remove_discord_user($id) {
-    $discord_api_url = 'https://discordapp.com/api/guilds/409179607665999872/members/' . $id . '/roles/439322496253165568';
+function remove_discord_user($id, $role = '439322496253165568') {
+    $discord_api_url = 'https://discordapp.com/api/guilds/' . DISCORD_GUILD_ID . '/members/' . $id . '/roles/' . $role;
     //Initiate cURL
     $ch = curl_init($discord_api_url);
      
@@ -722,6 +758,68 @@ function remove_discord_user($id) {
     $response = curl_exec($ch);
 
     curl_close($ch);
+}
+
+function set_discord_nickname($id, $nick) {
+    $discord_api_url = 'https://discordapp.com/api/guilds/' . DISCORD_GUILD_ID . '/members/' . $id;
+
+    $data = '{"nick": "' . $nick . '"}';
+
+    //Initiate cURL
+    $ch = curl_init($discord_api_url);
+     
+    //Use the CURLOPT_PUT option to tell cURL that
+    //this is a PUT request.
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+     
+    //We want the result / output returned.
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+     
+    //Http headers
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'User-Agent: OvachoRoleManager (https://www.ovacho.com, 1)',
+        'Authorization: Bot ' . DISCORD_BOT_TOKEN,
+        'Content-Type: application/json',
+    ));
+     
+    //Execute the request.
+    $response = curl_exec($ch);
+
+    curl_close($ch);
+    return $response;
+}
+
+function append_discord_nickname($id, $suffix = '') {
+    $discord_api_url = 'https://discordapp.com/api/guilds/' . DISCORD_GUILD_ID . '/members/' . $id;
+
+    $data = '{"nick": "' . get_discord_guild_nickname($id) . ' ' . $suffix . '"}';
+    var_dump($data);
+    //Initiate cURL
+    $ch = curl_init($discord_api_url);
+     
+    //Use the CURLOPT_PUT option to tell cURL that
+    //this is a PUT request.
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+     
+    //We want the result / output returned.
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+     
+    //Http headers
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'User-Agent: OvachoRoleManager (https://www.ovacho.com, 1)',
+        'Authorization: Bot ' . DISCORD_BOT_TOKEN,
+        'Content-Type: application/json',
+    ));
+     
+    //Execute the request.
+    $response = curl_exec($ch);
+
+    curl_close($ch);
+    return $response;
 }
 
 //seconds

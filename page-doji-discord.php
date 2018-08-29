@@ -1,17 +1,20 @@
 <?php /*Template Name: Doji Discord **Backend** */ ?>
 <?php get_header();?>
 <?php
-	$auth = (is_user_logged_in() && get_user_meta(get_current_user_id(), 'permissions', true)->doji_discord) || current_user_can('administrator');
+	$auth = (is_user_logged_in() && get_user_meta(get_current_user_id(), 'permissions', true)->doji_discord === 'true') || current_user_can('administrator');
 
 	if($auth):
 
 		if(isset($_GET['discord_id'])) {
-			$response = add_discord_user($_GET['discord_id'], '480908124614819842');
+			$discord_id = $_GET['discord_id'];
+			$response = add_discord_user($discord_id, DOJIYOGI_DISCORD_ROLE_ID);
 			if(isset($response->code)) {
 				if($response->code === 10013) $error = 'Error: Invalid User ID';
 				else $error = 'Error Code ' . $response->code;
 			}else {
-				$error = 'User ' . get_discord_user($_GET['discord_id'])->username . ' (' . $_GET['discord_id'] . ') added successfully.';
+				$user = get_discord_user($discord_id);
+				$error = 'User ' . $user->username . ' (' . $discord_id . ') added successfully.';
+				append_discord_nickname($discord_id, DOJIYOGI_DISCORD_NICK_SUFFIX);
 			}
 		}
 	
