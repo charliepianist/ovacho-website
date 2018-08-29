@@ -795,7 +795,7 @@ function append_discord_nickname($id, $suffix = '') {
     $discord_api_url = 'https://discordapp.com/api/guilds/' . DISCORD_GUILD_ID . '/members/' . $id;
 
     $data = '{"nick": "' . get_discord_guild_nickname($id) . ' ' . $suffix . '"}';
-    var_dump($data);
+
     //Initiate cURL
     $ch = curl_init($discord_api_url);
      
