@@ -42,7 +42,7 @@ $amount = get_forms_amount(get_current_user_id());
         ?>
       </div>
       <div class="w-col w-col-4">
-        <h1 class="_3_chartname">Doji Yogi (a.k.a. LuckyLou)</h1>
+        <h1 class="_3_chartname">Doji Yogi <span style="font-size:16px;">(eZwallStTrades™)</span></h1>
         <p class="pricing" style="padding-bottom:1.3em;">
           <span class="text-span-7">About<br></span>
           • Over 20 Years Of Experience<br>

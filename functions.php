@@ -555,6 +555,43 @@ function get_var_dump($var) {
     return ob_get_clean();
 }
 
+function get_all_discord_users($guild_id = '409179607665999872') {
+    $after = 0;
+    $arr = array();
+    $temp_arr = get_discord_users($guild_id, 1000, $after);
+    $arr = $temp_arr;
+    while(is_array($temp_arr) && count($temp_arr) === 1000) {
+        $after = $arr[count($arr) - 1]->user->id;
+        echo 'TESTTEST' . $after;
+        $temp_arr = get_discord_users($guild_id, 1000, $after);
+        $arr = array_merge($arr, $temp_arr);
+    }
+    return $arr;
+}
+
+function get_discord_users($guild_id = '409179607665999872', $limit = 1000, $after = 0) {
+
+    $discord_api_url = 'https://discordapp.com/api/guilds/' . $guild_id . '/members?limit=' . $limit . '&after=' . $after;
+    //Initiate cURL
+    $ch = curl_init($discord_api_url);
+     
+    //We want the result / output returned.
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+     
+    //Http headers
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'User-Agent: OvachoRoleManager (https://www.ovacho.com, 1)',
+        'Authorization: Bot ' . DISCORD_BOT_TOKEN,
+    ));
+     
+    //Execute the request.
+    $response = curl_exec($ch); 
+
+    curl_close($ch);
+
+    return json_decode($response);
+}
+
 function get_discord_guild_nickname($id, $guild = DISCORD_GUILD_ID) {
     $guild_user = get_discord_guild_user($id, $guild);
     if(isset($guild_user->nick)) return $guild_user->nick;

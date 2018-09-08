@@ -7,7 +7,7 @@
 function user_dump($user) {
 	//subscription type
 	$subscription_type = get_user_subscription($user->id);
-	if(get_user_meta($user->id, 'subscription_active', true) == 'false' && $subscription_type == 'classic') $subscription_type = 'classic (inactive)';
+	if($subscription_type == 'classic' && !is_subscription_active($user->id)) $subscription_type = 'classic (inactive)';
 	echo '<strong>Subscription: ' . $subscription_type . '</strong><br>';
 	//var dump
 	var_dump($user);
